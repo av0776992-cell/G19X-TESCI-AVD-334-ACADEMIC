@@ -621,7 +621,7 @@ function App() {
     const esAdministrador = usuario.rol === 'ADMINISTRADOR'
 
     return (
-      <main className="pagina pagina-panel">
+      <main className={`pagina pagina-panel ${esAdministrador ? "pagina-administrador" : "pagina-reclutador"}`}>
         <section className="panel-admin">
           <header className="panel-encabezado">
             <div>
@@ -1168,7 +1168,7 @@ function App() {
                     <div className="informacion">
                       <p>
                         <strong>Resultado:</strong>{' '}
-                        {revision.decision_final.decision}
+                        <span className={`estado-decision ${revision.decision_final.decision?.toUpperCase() === "ACEPTADO" ? "estado-aceptado" : "estado-rechazado"}`}>{revision.decision_final.decision}</span>
                       </p>
 
                       <p>

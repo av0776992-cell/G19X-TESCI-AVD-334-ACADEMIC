@@ -358,3 +358,349 @@
     width: 100%;
   }
 }
+
+/* Mejoras visuales del inicio de sesion */
+.pagina:not(.pagina-panel) > .tarjeta {
+  max-width: 520px;
+  padding: 48px 44px;
+}
+
+.pagina:not(.pagina-panel) > .tarjeta .marca {
+  width: 76px;
+  height: 76px;
+  font-size: 24px;
+}
+
+.pagina:not(.pagina-panel) > .tarjeta h1 {
+  font-size: 34px;
+}
+
+.pagina:not(.pagina-panel) > .tarjeta .etiqueta {
+  font-size: 15px;
+}
+
+.pagina:not(.pagina-panel) > .tarjeta .descripcion {
+  font-size: 16px;
+}
+
+.pagina:not(.pagina-panel) > .tarjeta .campo > input {
+  min-height: 52px;
+  font-size: 16px;
+}
+
+.pagina:not(.pagina-panel) > .tarjeta .boton {
+  min-height: 52px;
+  font-size: 16px;
+}
+
+.pagina:not(.pagina-panel) > .tarjeta .pie {
+  font-size: 13px;
+}
+
+@media (max-width: 600px) {
+  .pagina:not(.pagina-panel) > .tarjeta {
+    padding: 32px 24px;
+  }
+}
+
+/* Ajustes finales de legibilidad del login */
+.pagina:not(.pagina-panel) > .tarjeta {
+  max-width: 560px;
+}
+
+.pagina:not(.pagina-panel) > .tarjeta .campo > label:first-child {
+  font-size: 16px;
+}
+
+.pagina:not(.pagina-panel) > .tarjeta .mostrar-password {
+  font-size: 14px;
+}
+
+.pagina:not(.pagina-panel) > .tarjeta .descripcion {
+  font-size: 17px;
+}
+
+.pagina:not(.pagina-panel) > .tarjeta .pie {
+  font-size: 14px;
+}
+
+
+/* Ajustes finales de legibilidad del login */
+.pagina:not(.pagina-panel) > .tarjeta {
+  max-width: 560px;
+}
+
+.pagina:not(.pagina-panel) > .tarjeta .campo > label:first-child {
+  font-size: 16px;
+}
+
+.pagina:not(.pagina-panel) > .tarjeta .mostrar-password {
+  font-size: 14px;
+}
+
+.pagina:not(.pagina-panel) > .tarjeta .descripcion {
+  font-size: 17px;
+}
+
+.pagina:not(.pagina-panel) > .tarjeta .pie {
+  font-size: 14px;
+}
+
+
+/* Mejoras visuales exclusivas del panel candidato */
+.pagina-candidato > .panel-admin {
+  max-width: 1400px;
+}
+
+.pagina-candidato .panel-encabezado h1 {
+  font-size: 34px;
+}
+
+.pagina-candidato .panel-seccion h2 {
+  font-size: 24px;
+}
+
+.pagina-candidato .panel-columnas {
+  grid-template-columns: minmax(320px, 1fr) minmax(0, 1.2fr);
+  gap: 24px;
+}
+
+.pagina-candidato .postulacion-item {
+  padding: 22px;
+}
+
+.pagina-candidato .postulacion-item p {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+  .pagina-candidato .panel-columnas {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Navegacion del panel candidato */
+.pagina-candidato .panel-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.pagina-candidato .panel-acciones .boton {
+  width: auto;
+  min-height: 44px;
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+@media (max-width: 600px) {
+  .pagina-candidato .panel-acciones .boton {
+    width: 100%;
+  }
+}
+
+/* Mejoras de legibilidad del panel candidato */
+.pagina-candidato .panel-seccion {
+  padding: 28px;
+}
+
+.pagina-candidato .panel-seccion h2 {
+  font-size: 23px;
+}
+
+.pagina-candidato .panel-seccion h3 {
+  font-size: 19px;
+}
+
+.pagina-candidato .panel-seccion p,
+.pagina-candidato .postulacion-item p {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.pagina-candidato .panel-seccion label {
+  font-size: 15px;
+}
+
+.pagina-candidato .postulacion-item {
+  padding: 22px;
+}
+
+@media (max-width: 600px) {
+  .pagina-candidato .panel-seccion {
+    padding: 18px;
+  }
+}
+
+/* Legibilidad de las tarjetas de vacantes */
+.pagina-candidato .postulacion-item strong {
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.pagina-candidato .postulacion-item p {
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.pagina-candidato .postulacion-item .boton {
+  font-size: 15px;
+  min-height: 46px;
+}
+
+.pagina-candidato .panel-acciones .boton {
+  font-size: 15px;
+}
+
+
+/* Mejoras visuales del panel de reclutador */
+.pagina-reclutador .panel-admin {
+  max-width: 1400px;
+}
+
+.pagina-reclutador .panel-seccion {
+  padding: 28px;
+}
+
+.pagina-reclutador .panel-seccion h2 {
+  font-size: 23px;
+}
+
+.pagina-reclutador .panel-seccion h3 {
+  font-size: 19px;
+}
+
+.pagina-reclutador .postulacion-item {
+  padding: 22px;
+}
+
+.pagina-reclutador .postulacion-item strong {
+  font-size: 17px;
+}
+
+.pagina-reclutador .postulacion-item p {
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.pagina-reclutador .boton {
+  font-size: 15px;
+  min-height: 46px;
+}
+
+@media (max-width: 600px) {
+  .pagina-reclutador .panel-seccion {
+    padding: 18px;
+  }
+}
+
+
+/* Legibilidad de las evaluaciones del reclutador */
+.pagina-reclutador .detalle-revision {
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.pagina-reclutador .detalle-revision p,
+.pagina-reclutador .detalle-revision label {
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.pagina-reclutador .detalle-revision strong {
+  font-size: 16px;
+}
+
+.pagina-reclutador .campo > input,
+.pagina-reclutador .campo > textarea,
+.pagina-reclutador .campo > select {
+  font-size: 16px;
+  min-height: 48px;
+}
+
+
+/* Mejoras visuales del panel administrador */
+.pagina-administrador .panel-admin {
+  max-width: 1400px;
+}
+
+.pagina-administrador .panel-seccion {
+  padding: 30px;
+}
+
+.pagina-administrador .panel-seccion h2 {
+  font-size: 23px;
+}
+
+.pagina-administrador .panel-seccion h3 {
+  font-size: 19px;
+}
+
+.pagina-administrador .panel-seccion p,
+.pagina-administrador .panel-seccion label {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.pagina-administrador .campo > input,
+.pagina-administrador .campo > select,
+.pagina-administrador .campo > textarea {
+  font-size: 16px;
+  min-height: 48px;
+}
+
+.pagina-administrador .boton {
+  min-height: 46px;
+  font-size: 15px;
+}
+
+@media (max-width: 600px) {
+  .pagina-administrador .panel-seccion {
+    padding: 18px;
+  }
+}
+
+
+/* Destacar el puntaje de IA en el panel administrador */
+.pagina-administrador .puntaje-ranking {
+  display: inline-block;
+  font-size: 36px;
+  font-weight: 800;
+  color: #2563eb;
+  line-height: 1.2;
+  margin: 8px 0 14px;
+}
+
+
+/* Prioridad visual del puntaje de IA */
+.pagina-administrador .panel-seccion p.puntaje-ranking {
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #2563eb;
+}
+
+
+/* Estados de la decision final */
+.pagina-administrador .estado-decision {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.pagina-administrador .estado-aceptado {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.pagina-administrador .estado-rechazado {
+  background: #fee2e2;
+  color: #991b1b;
+}

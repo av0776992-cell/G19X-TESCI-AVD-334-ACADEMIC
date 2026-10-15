@@ -1,4 +1,4 @@
-﻿
+
 import { useEffect, useState } from 'react'
 import PerfilCandidato from './PerfilCandidato'
 import FormacionCandidato from './FormacionCandidato'
@@ -411,7 +411,7 @@ export default function PanelCandidato({
   ]
 
   return (
-    <main className="pagina pagina-panel">
+    <main className="pagina pagina-panel pagina-candidato">
       <section className="panel-admin">
         <header className="panel-encabezado">
           <div>
@@ -955,6 +955,3 @@ export default function PanelCandidato({
     </main>
   )
 }
-
-
-
