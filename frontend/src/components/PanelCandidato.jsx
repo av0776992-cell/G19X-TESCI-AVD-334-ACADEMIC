@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from 'react'
+import MenuLateral from './MenuLateral'
 import PerfilCandidato from './PerfilCandidato'
 import FormacionCandidato from './FormacionCandidato'
 import ExperienciaCandidato from './ExperienciaCandidato'
@@ -412,6 +413,12 @@ export default function PanelCandidato({
 
   return (
     <main className="pagina pagina-panel pagina-candidato">
+      <MenuLateral
+        rol="CANDIDATO"
+        seccionActiva={seccion}
+        onSeleccionar={cambiarSeccion}
+        onCerrarSesion={cerrarSesion}
+      />
       <section className="panel-admin">
         <header className="panel-encabezado">
           <div>
@@ -421,18 +428,10 @@ export default function PanelCandidato({
             <h1>Panel de candidatos</h1>
             <p>Bienvenido, {usuario.nombre}</p>
           </div>
-
-          <button
-            type="button"
-            className="boton boton-secundario"
-            onClick={cerrarSesion}
-          >
-            Cerrar sesión
-          </button>
         </header>
 
         <section className="panel-seccion">
-          <h2>Explora tus oportunidades</h2>
+          <h2>{seccion === "vacantes" ? "Explora tus oportunidades" : "Mi espacio de candidato"}</h2>
 
           <p>
             Consulta vacantes, administra tus postulaciones,
@@ -447,20 +446,7 @@ export default function PanelCandidato({
               gap: '12px',
             }}
           >
-            {SECCIONES.map((opcion) => (
-              <button
-                key={opcion.id}
-                type="button"
-                className={
-                  seccion === opcion.id
-                    ? 'boton'
-                    : 'boton boton-secundario'
-                }
-                onClick={() => cambiarSeccion(opcion.id)}
-              >
-                {opcion.nombre}
-              </button>
-            ))}
+
 
             <button
               type="button"

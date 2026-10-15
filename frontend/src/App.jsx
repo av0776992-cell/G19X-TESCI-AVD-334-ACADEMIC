@@ -1,6 +1,7 @@
 
 import { useState } from 'react'
 import PanelCandidato from './components/PanelCandidato'
+import MenuLateral from './components/MenuLateral'
 import './App.css'
 
 const API_URL = 'http://127.0.0.1:8000'
@@ -15,6 +16,7 @@ function App() {
   const [mensaje, setMensaje] = useState('')
 
   const [usuario, setUsuario] = useState(null)
+  const [seccionPanel, setSeccionPanel] = useState('inicio')
   const [token, setToken] = useState('')
 
   const [postulaciones, setPostulaciones] = useState([])
@@ -622,6 +624,22 @@ function App() {
 
     return (
       <main className={`pagina pagina-panel ${esAdministrador ? "pagina-administrador" : "pagina-reclutador"}`}>
+        <MenuLateral
+          rol={usuario.rol}
+          seccionActiva={seccionPanel}
+          onSeleccionar={(opcion) => {
+            setSeccionPanel(opcion)
+            if (opcion === 'inicio') {
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+            } else {
+              document.getElementById(`panel-${opcion}`)?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+              })
+            }
+          }}
+          onCerrarSesion={cerrarSesion}
+        />
         <section className="panel-admin">
           <header className="panel-encabezado">
             <div>
@@ -638,14 +656,6 @@ function App() {
 
               <p>Bienvenido, {usuario.nombre}</p>
             </div>
-
-            <button
-              type="button"
-              className="boton boton-secundario"
-              onClick={cerrarSesion}
-            >
-              Cerrar sesión
-            </button>
           </header>
 
           {error && (
@@ -661,7 +671,7 @@ function App() {
           )}
 
           {esAdministrador && (
-            <section className="panel-seccion">
+            <section id="panel-vacantes" className="panel-seccion">
               <h2>Crear nueva vacante</h2>
               <p className="nota">
                 Registra una oportunidad laboral para los candidatos.
@@ -669,7 +679,7 @@ function App() {
 
               <form onSubmit={crearVacante}>
                 <div className="campo">
-                  <label htmlFor="vacante-titulo">T?tulo *</label>
+                  <label htmlFor="vacante-titulo">Título *</label>
                   <input
                     id="vacante-titulo"
                     type="text"
@@ -686,7 +696,7 @@ function App() {
                 </div>
 
                 <div className="campo">
-                  <label htmlFor="vacante-descripcion">Descripci?n *</label>
+                  <label htmlFor="vacante-descripcion">Descripción *</label>
                   <textarea
                     id="vacante-descripcion"
                     required
@@ -702,7 +712,7 @@ function App() {
                 </div>
 
                 <div className="campo">
-                  <label htmlFor="vacante-ubicacion">Ubicaci?n</label>
+                  <label htmlFor="vacante-ubicacion">Ubicación</label>
                   <input
                     id="vacante-ubicacion"
                     type="text"
@@ -738,7 +748,7 @@ function App() {
 
                 <div className="campo">
                   <label htmlFor="vacante-experiencia">
-                    Experiencia m?nima (meses)
+                    Experiencia mínima (meses)
                   </label>
                   <input
                     id="vacante-experiencia"
@@ -905,7 +915,7 @@ function App() {
               {edicionVacante.titulo && (
                 <form onSubmit={guardarEdicionVacante}>
                   <div className="campo">
-                    <label htmlFor="editar-vacante-titulo">T?tulo</label>
+                    <label htmlFor="editar-vacante-titulo">Título</label>
                     <input
                       id="editar-vacante-titulo"
                       required
@@ -920,7 +930,7 @@ function App() {
                   </div>
 
                   <div className="campo">
-                    <label htmlFor="editar-vacante-descripcion">Descripci?n</label>
+                    <label htmlFor="editar-vacante-descripcion">Descripción</label>
                     <textarea
                       id="editar-vacante-descripcion"
                       required
@@ -935,7 +945,7 @@ function App() {
                   </div>
 
                   <div className="campo">
-                    <label htmlFor="editar-vacante-ubicacion">Ubicaci?n</label>
+                    <label htmlFor="editar-vacante-ubicacion">Ubicación</label>
                     <input
                       id="editar-vacante-ubicacion"
                       value={edicionVacante.ubicacion}
@@ -964,7 +974,7 @@ function App() {
 
                   <div className="campo">
                     <label htmlFor="editar-vacante-experiencia">
-                      Experiencia m?nima (meses)
+                      Experiencia mínima (meses)
                     </label>
                     <input
                       id="editar-vacante-experiencia"
@@ -1020,7 +1030,7 @@ function App() {
           )}
 
           <div className="panel-columnas">
-            <section className="panel-seccion">
+            <section id="panel-postulaciones" className="panel-seccion">
               <h2>Postulaciones recibidas</h2>
 
               <button
