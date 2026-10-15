@@ -1,0 +1,39 @@
+# Entornos virtuales de Python
+.venv/
+.vene/
+venv/
+env/
+
+# Variables de entorno y secretos
+.env
+.env.*
+!.env.example
+
+# Archivos generados por Python
+__pycache__/
+*.py[cod]
+
+# VS Code
+.vscode/
+
+# Node / React
+node_modules/
+frontend/dist/
+frontend/build/
+
+# Machine Learning
+*.pkl
+*.joblib
+
+# Archivos temporales
+*.log
+*.tmp
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+# Documentos privados de candidatos
+backend/storage/documentos/
+
+# Respaldos locales de datos y documentos
+/respaldos/

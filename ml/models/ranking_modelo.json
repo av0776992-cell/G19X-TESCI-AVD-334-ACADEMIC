@@ -1,0 +1,16 @@
+{
+  "version": "prototipo-sintetico-v1",
+  "algoritmo": "RandomForestRegressor",
+  "variables": [
+    "experiencia",
+    "habilidades",
+    "formacion",
+    "competencias",
+    "evaluaciones"
+  ],
+  "origen_datos": "sinteticos",
+  "cantidad_registros": 5000,
+  "mae_sintetico": 1.7535,
+  "r2_sintetico": 0.9724,
+  "advertencia": "Modelo experimental entrenado con etiquetas generadas por reglas. No validado para predecir resultados reales de contratación."
+}
