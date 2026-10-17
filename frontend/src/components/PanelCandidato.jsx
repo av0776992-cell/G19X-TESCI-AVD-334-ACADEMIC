@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import MenuLateral from './MenuLateral'
 import PerfilCandidato from './PerfilCandidato'
 import FormacionCandidato from './FormacionCandidato'
@@ -46,7 +46,7 @@ export default function PanelCandidato({
   const [descargandoId, setDescargandoId] = useState(null)
   const [reiniciarArchivo, setReiniciarArchivo] = useState(0)
 
-  async function solicitar(ruta, opciones = {}) {
+  const solicitar = useCallback(async (ruta, opciones = {}) => {
     const respuesta = await fetch(`${API_URL}${ruta}`, {
       ...opciones,
       headers: {
@@ -73,7 +73,7 @@ export default function PanelCandidato({
     if (respuesta.status === 204) return null
 
     return respuesta.json()
-  }
+  }, [token])
 
   async function cargarDatos() {
     setCargando(true)
@@ -111,8 +111,37 @@ export default function PanelCandidato({
   }
 
   useEffect(() => {
-    cargarDatos()
-  }, [token])
+    let activo = true
+
+    async function cargarInicial() {
+      try {
+        const [listaVacantes, listaPostulaciones] = await Promise.all([
+          solicitar('/api/v1/vacantes'),
+          solicitar('/api/v1/postulaciones'),
+        ])
+
+        if (!activo) return
+        setVacantes(listaVacantes)
+        setPostulaciones(listaPostulaciones)
+        setPostulacionDocumento((actual) =>
+          actual && listaPostulaciones.some((p) => String(p.id) === actual)
+            ? actual
+            : listaPostulaciones.length
+              ? String(listaPostulaciones[0].id)
+              : ''
+        )
+      } catch (err) {
+        if (activo) setError(err.message)
+      } finally {
+        if (activo) setCargando(false)
+      }
+    }
+
+    cargarInicial()
+    return () => {
+      activo = false
+    }
+  }, [solicitar])
 
   async function verDetalle(vacanteId) {
     setError('')
@@ -237,10 +266,31 @@ export default function PanelCandidato({
   }
 
   useEffect(() => {
-    if (seccion === 'documentos') {
-      cargarDocumentos(postulacionDocumento)
+    if (seccion !== 'documentos' || !postulacionDocumento) return
+
+    let activo = true
+
+    async function cargarDocumentosInicial() {
+      try {
+        const lista = await solicitar(
+          `/api/v1/documentos/postulacion/${postulacionDocumento}`
+        )
+        if (activo) setDocumentos(lista)
+      } catch (err) {
+        if (activo) {
+          setError(err.message)
+          setDocumentos([])
+        }
+      } finally {
+        if (activo) setCargandoDocumentos(false)
+      }
     }
-  }, [seccion, postulacionDocumento, token])
+
+    cargarDocumentosInicial()
+    return () => {
+      activo = false
+    }
+  }, [seccion, postulacionDocumento, solicitar])
 
   function seleccionarArchivos(evento) {
     const seleccionados = Array.from(
@@ -392,24 +442,15 @@ export default function PanelCandidato({
     setError('')
     setMensaje('')
 
+    if (nuevaSeccion === 'documentos' && postulacionDocumento) {
+      setCargandoDocumentos(true)
+    }
+
     if (nuevaSeccion === 'vacantes') {
       setDetalle(null)
     }
   }
 
-  const SECCIONES = [
-    { id: 'vacantes', nombre: 'Vacantes disponibles' },
-    {
-      id: 'postulaciones',
-      nombre: `Mis postulaciones (${postulaciones.length})`,
-    },
-    { id: 'documentos', nombre: 'Mis documentos' },
-    { id: 'perfil', nombre: 'Mi perfil' },
-    { id: 'formacion', nombre: 'Mi formación académica' },
-    { id: 'experiencia', nombre: 'Mi experiencia laboral' },
-    { id: 'habilidades', nombre: 'Mis habilidades' },
-    { id: 'competencias', nombre: 'Mis competencias' },
-  ]
 
   return (
     <main className="pagina pagina-panel pagina-candidato">
@@ -756,6 +797,7 @@ export default function PanelCandidato({
                         evento.target.value
                       )
                       setDocumentos([])
+                      setCargandoDocumentos(true)
                       setError('')
                       setMensaje('')
                     }}

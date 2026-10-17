@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 const API_URL = 'http://127.0.0.1:8000'
 
@@ -23,7 +23,7 @@ export default function FormacionCandidato({ token }) {
   const [error, setError] = useState('')
   const [mensaje, setMensaje] = useState('')
 
-  async function solicitar(ruta, opciones = {}) {
+  const solicitar = useCallback(async (ruta, opciones = {}) => {
     const respuesta = await fetch(`${API_URL}${ruta}`, {
       ...opciones,
       headers: {
@@ -58,7 +58,7 @@ export default function FormacionCandidato({ token }) {
     }
 
     return datos
-  }
+  }, [token])
 
   async function cargarFormaciones() {
     setCargando(true)
@@ -75,8 +75,25 @@ export default function FormacionCandidato({ token }) {
   }
 
   useEffect(() => {
-    cargarFormaciones()
-  }, [token])
+    // Evita actualizar el estado si el token cambia o se desmonta el componente.
+    let activo = true
+
+    async function cargarInicial() {
+      try {
+        const datos = await solicitar('/api/v1/formaciones')
+        if (activo) setFormaciones(datos)
+      } catch (err) {
+        if (activo) setError(err.message)
+      } finally {
+        if (activo) setCargando(false)
+      }
+    }
+
+    cargarInicial()
+    return () => {
+      activo = false
+    }
+  }, [solicitar])
 
   function cambiarCampo(evento) {
     const { name, value } = evento.target

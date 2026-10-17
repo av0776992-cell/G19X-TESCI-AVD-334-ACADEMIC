@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 const API_URL = 'http://127.0.0.1:8000'
 
@@ -25,7 +25,7 @@ export default function HabilidadesCandidato({ token }) {
   const [error, setError] = useState('')
   const [mensaje, setMensaje] = useState('')
 
-  async function solicitar(ruta, opciones = {}) {
+  const solicitar = useCallback(async (ruta, opciones = {}) => {
     const respuesta = await fetch(`${API_URL}${ruta}`, {
       ...opciones,
       headers: {
@@ -62,7 +62,7 @@ export default function HabilidadesCandidato({ token }) {
     }
 
     return datos
-  }
+  }, [token])
 
   async function cargarDatos() {
     setCargando(true)
@@ -71,11 +71,11 @@ export default function HabilidadesCandidato({ token }) {
     try {
       const [catalogoDatos, habilidadesDatos] = await Promise.all([
         solicitar('/api/v1/habilidades/catalogo'),
-        solicitar('/api/v1/habilidades'),
-      ])
+          solicitar('/api/v1/habilidades'),
+        ])
 
-      setCatalogo(catalogoDatos)
-      setHabilidades(habilidadesDatos)
+        setCatalogo(catalogoDatos)
+        setHabilidades(habilidadesDatos)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -84,8 +84,31 @@ export default function HabilidadesCandidato({ token }) {
   }
 
   useEffect(() => {
-    cargarDatos()
-  }, [token])
+    // Evita actualizar el estado si el token cambia o se desmonta el componente.
+    let activo = true
+
+    async function cargarInicial() {
+      try {
+        const [catalogoDatos, elementosDatos] = await Promise.all([
+          solicitar('/api/v1/habilidades/catalogo'),
+          solicitar('/api/v1/habilidades'),
+        ])
+
+        if (!activo) return
+        setCatalogo(catalogoDatos)
+        setHabilidades(elementosDatos)
+      } catch (err) {
+        if (activo) setError(err.message)
+      } finally {
+        if (activo) setCargando(false)
+      }
+    }
+
+    cargarInicial()
+    return () => {
+      activo = false
+    }
+  }, [solicitar])
 
   function limpiarFormulario() {
     setHabilidadId('')

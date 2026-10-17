@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 const API_URL = 'http://127.0.0.1:8000'
 
@@ -15,7 +15,7 @@ export default function PerfilCandidato({ token }) {
   const [error, setError] = useState('')
   const [mensaje, setMensaje] = useState('')
 
-  async function solicitar(ruta, opciones = {}) {
+  const solicitar = useCallback(async (ruta, opciones = {}) => {
     const respuesta = await fetch(`${API_URL}${ruta}`, {
       ...opciones,
       headers: {
@@ -48,7 +48,7 @@ export default function PerfilCandidato({ token }) {
     }
 
     return datos
-  }
+  }, [token])
 
   function actualizarFormulario(datos) {
     setFormulario({
@@ -84,7 +84,7 @@ export default function PerfilCandidato({ token }) {
     return () => {
       activo = false
     }
-  }, [token])
+  }, [solicitar])
 
   function cambiarCampo(evento) {
     const { name, value } = evento.target

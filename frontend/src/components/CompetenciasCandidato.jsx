@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 const API_URL = 'http://127.0.0.1:8000'
 
@@ -25,7 +25,7 @@ export default function CompetenciasCandidato({ token }) {
   const [error, setError] = useState('')
   const [mensaje, setMensaje] = useState('')
 
-  async function solicitar(ruta, opciones = {}) {
+  const solicitar = useCallback(async (ruta, opciones = {}) => {
     const respuesta = await fetch(`${API_URL}${ruta}`, {
       ...opciones,
       headers: {
@@ -62,7 +62,7 @@ export default function CompetenciasCandidato({ token }) {
     }
 
     return datos
-  }
+  }, [token])
 
   async function cargarDatos() {
     setCargando(true)
@@ -71,11 +71,11 @@ export default function CompetenciasCandidato({ token }) {
     try {
       const [catalogoDatos, competenciasDatos] = await Promise.all([
         solicitar('/api/v1/competencias/catalogo'),
-        solicitar('/api/v1/competencias'),
-      ])
+          solicitar('/api/v1/competencias'),
+        ])
 
-      setCatalogo(catalogoDatos)
-      setCompetencias(competenciasDatos)
+        setCatalogo(catalogoDatos)
+        setCompetencias(competenciasDatos)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -84,8 +84,31 @@ export default function CompetenciasCandidato({ token }) {
   }
 
   useEffect(() => {
-    cargarDatos()
-  }, [token])
+    // Evita actualizar el estado si el token cambia o se desmonta el componente.
+    let activo = true
+
+    async function cargarInicial() {
+      try {
+        const [catalogoDatos, elementosDatos] = await Promise.all([
+          solicitar('/api/v1/competencias/catalogo'),
+          solicitar('/api/v1/competencias'),
+        ])
+
+        if (!activo) return
+        setCatalogo(catalogoDatos)
+        setCompetencias(elementosDatos)
+      } catch (err) {
+        if (activo) setError(err.message)
+      } finally {
+        if (activo) setCargando(false)
+      }
+    }
+
+    cargarInicial()
+    return () => {
+      activo = false
+    }
+  }, [solicitar])
 
   function limpiarFormulario() {
     setCompetenciaId('')
