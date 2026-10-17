@@ -117,22 +117,41 @@ alembic upgrade head
 
 Alembic utilizará las migraciones almacenadas en `backend/alembic/versions/` para preparar el esquema de la base de datos. Si aparecen errores de conexión, comprueba primero `backend/.env` y PostgreSQL.
 
-### 5.5. Preparar datos de ejemplo (opcional)
+### 5.5. Inicializar catálogos y datos de ejemplo
 
-El proyecto contiene estos scripts en `backend/scripts/`. **El siguiente orden es una propuesta basada en sus nombres: aún debe validarse contra sus dependencias internas antes de declararlo definitivo.**
+Después de configurar PostgreSQL y ejecutar `alembic upgrade head`, inicializa los catálogos necesarios para el funcionamiento del sistema.
 
-1. Catálogos básicos: `crear_roles.py`, `crear_estados.py`, `crear_habilidades.py`, `crear_competencias.py`.
-2. Usuarios de prueba: `crear_administrador_prueba.py`, `crear_reclutador_prueba.py`.
-3. Datos de vacante: `crear_vacante_prueba.py`, `asignar_requisitos_vacante.py`.
-4. Datos adicionales: `completar_perfil_prueba.py` (requiere comprobar previamente a qué candidato modifica).
+**Todos los comandos siguientes se ejecutan desde la carpeta `backend/`, con el entorno virtual activado.**
 
-Desde `backend/`, el patrón para ejecutar un script es:
+#### Inicialización de catálogos
 
 ```powershell
-python scripts/crear_roles.py
+python -m scripts.crear_roles
+python -m scripts.crear_estados
+python -m scripts.crear_habilidades
+python -m scripts.crear_competencias
 ```
 
-Los scripts `restablecer_password_candidato.py` y `restablecer_password_reclutador.py` son **operaciones de mantenimiento**, no pasos habituales de una instalación nueva. Algunos scripts solicitan contraseñas mediante `getpass`. Nunca publiques esas contraseñas.
+Estos scripts registran los roles del sistema, los estados de postulación y los catálogos de habilidades y competencias. Comprueban la existencia de los registros antes de crearlos.
+
+#### Datos de demostración (opcionales)
+
+```powershell
+python -m scripts.crear_administrador_prueba
+python -m scripts.crear_reclutador_prueba
+python -m scripts.crear_vacante_prueba
+python -m scripts.asignar_requisitos_vacante
+```
+
+Los scripts de usuarios de prueba solicitan contraseñas de forma interactiva. La asignación de requisitos debe ejecutarse después de crear la vacante y los catálogos; puede modificar los niveles de requisitos ya existentes.
+
+El script `completar_perfil_prueba.py` es opcional y debe ejecutarse únicamente después de verificar que existe el candidato con ID 1 y que los identificadores de habilidades y competencias corresponden a los registros esperados:
+
+```powershell
+python -m scripts.completar_perfil_prueba
+```
+
+**Precaución:** estos scripts modifican datos de PostgreSQL. Utiliza una base de datos de demostración cuando prepares una instalación nueva. Los scripts de restablecimiento de contraseñas son herramientas de mantenimiento y no forman parte de la instalación inicial.
 
 ### 5.6. Iniciar la API
 
