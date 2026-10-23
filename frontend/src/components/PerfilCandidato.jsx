@@ -1,7 +1,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
+import { API_URL } from '../api'
 
-const API_URL = 'http://127.0.0.1:8000'
 
 export default function PerfilCandidato({ token }) {
   const [perfil, setPerfil] = useState(null)

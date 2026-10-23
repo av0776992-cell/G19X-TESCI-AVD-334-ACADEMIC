@@ -6,8 +6,8 @@ import FormacionCandidato from './FormacionCandidato'
 import ExperienciaCandidato from './ExperienciaCandidato'
 import HabilidadesCandidato from './HabilidadesCandidato'
 import CompetenciasCandidato from './CompetenciasCandidato'
+import { API_URL } from '../api'
 
-const API_URL = 'http://127.0.0.1:8000'
 
 const TIPOS_DOCUMENTO = [
   { valor: 'CV', nombre: 'Currículum (CV)' },

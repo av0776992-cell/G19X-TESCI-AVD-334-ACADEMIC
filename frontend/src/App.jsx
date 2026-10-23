@@ -2,9 +2,8 @@
 import { useState } from 'react'
 import PanelCandidato from './components/PanelCandidato'
 import PanelGestion from './components/PanelGestion'
+import { API_URL } from './api'
 import './App.css'
-
-const API_URL = 'http://127.0.0.1:8000'
 
 function App() {
   const [correo, setCorreo] = useState('')
