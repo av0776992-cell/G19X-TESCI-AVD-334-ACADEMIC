@@ -216,6 +216,8 @@ Desde `backend/`:
 python -m pytest tests
 ```
 
+**Pruebas automatizadas ampliadas (octubre de 2026):** se ejecutaron **25 pruebas y todas aprobaron** en el entorno local del proyecto. Incluyen compatibilidad de candidatos, autenticación y contraseñas, permisos por rol y acceso a rutas del ranking, y manejo de errores cuando falta el archivo del modelo o se proporcionan indicadores inválidos. Estas pruebas utilizan simulaciones y no escriben datos en PostgreSQL. Las seis pruebas mencionadas más abajo se ejecutaron previamente en una copia limpia del repositorio; se trata de comprobaciones distintas.
+
 Verificación manual recomendada:
 
 - La API inicia sin errores y Swagger abre correctamente.
