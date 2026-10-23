@@ -41,15 +41,13 @@ Sistema-Ranking-Candidatos/
 │   ├── main.py
 │   ├── alembic.ini
 │   ├── requirements.txt
-│   └── .env.example          # Se agrega en el siguiente cambio
+│   └── .env.example
 ├── frontend/
 │   ├── src/
 │   └── package.json
 ├── ml/
 │   ├── entrenar_modelo.py
 │   └── models/
-├── database/
-├── docs/
 ├── .gitignore
 └── README.md
 ```
@@ -85,7 +83,7 @@ No compartas credenciales reales ni las publiques en GitHub.
 
 ### 5.3. Configurar variables de entorno
 
-Cuando exista `backend/.env.example`, cópialo a `backend/.env` y reemplaza los valores de ejemplo por los de tu instalación local:
+El archivo `backend/.env.example` contiene las variables necesarias para configurar el backend. Cópialo a `backend/.env` y reemplaza los valores ficticios por los correspondientes a tu instalación local:
 
 ```powershell
 Copy-Item .\backend\.env.example .\backend\.env
@@ -228,7 +226,7 @@ Verificación manual recomendada:
 - El modelo `.joblib` existe y el ranking responde cuando se usa con datos válidos.
 - El frontend carga y se comunica con la API.
 
-Los comandos aquí descritos son instrucciones de instalación y **no constituyen evidencia de que la aplicación ya se haya ejecutado o probado en un entorno nuevo**.
+**Verificaciones realizadas en una copia limpia del repositorio (octubre de 2026):** instalación de dependencias del backend y del frontend, seis pruebas unitarias de compatibilidad aprobadas, comprobación de ESLint, compilación de Vite y entrenamiento local del modelo con datos sintéticos. Para ejecutar las pruebas unitarias sin configurar una base de datos real se agregó `backend/tests/conftest.py`. Estas comprobaciones no sustituyen una prueba integral con PostgreSQL y los tres roles en funcionamiento.
 
 ## 9. Seguridad y manejo de datos
 
@@ -244,4 +242,4 @@ Se utilizaron herramientas de asistencia con IA como apoyo para la planificació
 
 ## 11. Estado del proyecto
 
-Proyecto académico en desarrollo. Incluye un MVP con backend, frontend, esquema de datos, autenticación por roles y un módulo de ranking. Antes de una entrega final se debe comprobar la instalación desde cero, las rutas principales, los scripts de inicialización y los resultados del modelo.
+Proyecto académico en desarrollo. Incluye un MVP con backend, frontend, esquema de datos, autenticación por roles y un módulo de ranking. Ya se comprobó la instalación de dependencias, las pruebas unitarias de compatibilidad, la compilación del frontend y el entrenamiento del modelo desde una copia limpia. Antes de la entrega final todavía debe verificarse el flujo integral con una base PostgreSQL de pruebas y confirmar el funcionamiento de los roles y las rutas principales.

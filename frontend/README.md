@@ -1,16 +1,43 @@
-# React + Vite
+# Frontend — Sistema de Ranking Predictivo de Candidatos
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interfaz web desarrollada con **React, JavaScript y Vite** para apoyar la gestión de vacantes, postulaciones y evaluaciones dentro del Sistema de Ranking Predictivo de Candidatos.
 
-Currently, two official plugins are available:
+## Roles y funciones
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Candidato:** consulta vacantes y postulaciones; administra perfil, formación académica, experiencia, habilidades, competencias y documentos PDF.
+- **Reclutador:** consulta postulaciones y registra evaluaciones y recomendaciones.
+- **Administrador:** supervisa vacantes y postulaciones, revisa evaluaciones y consulta los resultados del ranking predictivo.
 
-## React Compiler
+## Requisitos
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Node.js y npm.
+- API del backend configurada y en ejecución para probar funcionalidades que consultan datos.
 
-## Expanding the ESLint configuration
+## Instalación
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Desde la carpeta `frontend/`:
+
+```powershell
+npm ci
+```
+
+## Desarrollo
+
+```powershell
+npm run dev
+```
+
+Vite mostrará la dirección local en la terminal. El frontend necesita acceso a la API del backend para cargar y guardar información.
+
+## Validaciones
+
+```powershell
+npm run lint
+npm run build
+```
+
+## Documentación principal
+
+Consulta el [`README.md` de la raíz](../README.md) para configurar Python, FastAPI, PostgreSQL, Alembic, los datos iniciales y el entrenamiento del modelo Random Forest.
+
+> **Nota:** La URL del backend todavía se configura en el código del frontend. Está pendiente centralizarla con `VITE_API_URL` y añadir `frontend/.env.example`.
