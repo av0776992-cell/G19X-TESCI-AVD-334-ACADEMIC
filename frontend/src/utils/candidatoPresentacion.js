@@ -43,4 +43,3 @@ export function obtenerColorEstado(estado) {
 
     return '#2563eb'
   }
-
