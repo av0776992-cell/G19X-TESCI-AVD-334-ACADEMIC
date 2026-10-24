@@ -89,7 +89,7 @@ El archivo `backend/.env.example` contiene las variables necesarias para configu
 Copy-Item .\backend\.env.example .\backend\.env
 ```
 
-Variables requeridas según la revisión del proyecto:
+Variables requeridas:
 
 | Variable | Propósito |
 | --- | --- |
@@ -187,6 +187,10 @@ npm run preview
 ```
 
 El backend y el frontend se ejecutan en terminales separadas durante el desarrollo.
+
+Antes de iniciar Vite, copia `frontend/.env.example` a `frontend/.env` si necesitas personalizar `VITE_API_URL`. Por defecto, `frontend/src/api.js` usa `http://127.0.0.1:8000`.
+
+Los roles administrador y reclutador pueden consultar `GET /api/v1/ranking/vacantes/{vacante_id}` para visualizar las postulaciones ordenadas por su último puntaje. Desde la revisión administrativa se puede ejecutar `POST /api/v1/ranking/postulaciones/{postulacion_id}/calcular`; si faltan indicadores, la interfaz los muestra. El modelo debe haberse entrenado antes.
 
 ## 7. Entrenar el modelo de ranking
 

@@ -5,12 +5,15 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.dependencies import requerir_roles
+from app.models.candidato import Candidato
 from app.models.postulacion import Postulacion
+from app.models.vacante import Vacante
 from app.models.resultado_ranking import ResultadoRanking
 from app.models.usuario import Usuario
 from app.schemas.ranking import (
     RankingPrediccionEntrada,
     RankingPrediccionRespuesta,
+    RankingVacanteRespuesta,
     ResultadoRankingRespuesta,
 )
 from app.services.indicadores_ranking_service import (
@@ -160,3 +163,59 @@ def consultar_ranking_postulacion(
     ).all()
 
     return resultados
+
+
+@router.get(
+    "/vacantes/{vacante_id}",
+    response_model=RankingVacanteRespuesta,
+)
+def consultar_ranking_vacante(
+    vacante_id: int,
+    db: Session = Depends(get_db),
+    usuario_actual: Usuario = Depends(
+        requerir_roles("RECLUTADOR", "ADMINISTRADOR")
+    ),
+):
+    """Clasifica postulaciones por su último puntaje (sin recalcular ni alterar datos)."""
+    vacante = db.get(Vacante, vacante_id)
+    if vacante is None:
+        raise HTTPException(status_code=404, detail="La vacante no existe.")
+
+    # Para cada postulación recuperamos un único resultado, el más reciente.
+    ultimo_resultado_id = (
+        select(ResultadoRanking.id)
+        .where(ResultadoRanking.postulacion_id == Postulacion.id)
+        .order_by(
+            ResultadoRanking.fecha_calculo.desc(),
+            ResultadoRanking.id.desc(),
+        )
+        .limit(1)
+        .correlate(Postulacion)
+        .scalar_subquery()
+    )
+
+    filas = db.execute(
+        select(
+            Postulacion.id.label("postulacion_id"),
+            Postulacion.candidato_id,
+            Usuario.nombre.label("candidato_nombre"),
+            ResultadoRanking.id.label("resultado_id"),
+            ResultadoRanking.puntaje,
+            ResultadoRanking.metodo,
+            ResultadoRanking.fecha_calculo,
+        )
+        .join(Candidato, Candidato.id == Postulacion.candidato_id)
+        .join(Usuario, Usuario.id == Candidato.usuario_id)
+        .outerjoin(ResultadoRanking, ResultadoRanking.id == ultimo_resultado_id)
+        .where(Postulacion.vacante_id == vacante_id)
+        .order_by(
+            ResultadoRanking.puntaje.desc().nullslast(),
+            Postulacion.id.asc(),
+        )
+    ).mappings().all()
+
+    return {
+        "vacante_id": vacante.id,
+        "titulo_vacante": vacante.titulo,
+        "candidatos": [dict(fila) for fila in filas],
+    }

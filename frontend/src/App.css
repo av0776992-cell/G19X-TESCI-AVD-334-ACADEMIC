@@ -1134,3 +1134,28 @@
 .pagina-panel #panel-postulaciones > .boton {
   margin-bottom: 12px;
 }
+
+/* Clasificación predictiva por vacante */
+.tabla-ranking-contenedor {
+  overflow-x: auto;
+  margin-top: 16px;
+}
+
+.tabla-ranking-vacante {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 580px;
+  font-size: 14px;
+}
+
+.tabla-ranking-vacante th,
+.tabla-ranking-vacante td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.tabla-ranking-vacante th {
+  color: #1e293b;
+  background: #e2e8f0;
+}

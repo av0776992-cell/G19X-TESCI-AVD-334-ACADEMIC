@@ -25,6 +25,8 @@ function App() {
   const [revision, setRevision] = useState(null)
   const [decision, setDecision] = useState('ACEPTADO')
   const [justificacion, setJustificacion] = useState('')
+  const [calculandoRanking, setCalculandoRanking] = useState(false)
+  const [indicadoresPendientes, setIndicadoresPendientes] = useState([])
 
   // Gesti?n de vacantes (administrador)
   const [nuevaVacante, setNuevaVacante] = useState({
@@ -83,11 +85,18 @@ function App() {
     const datos = await respuesta.json().catch(() => ({}))
 
     if (!respuesta.ok) {
-      throw new Error(
-        typeof datos.detail === 'string'
-          ? datos.detail
-          : `Error del servidor (${respuesta.status}).`
+      const detalle = datos.detail
+      const errorAPI = new Error(
+        typeof detalle === 'string'
+          ? detalle
+          : typeof detalle?.mensaje === 'string'
+            ? detalle.mensaje
+            : `Error del servidor (${respuesta.status}).`
       )
+      errorAPI.indicadoresPendientes = Array.isArray(detalle?.indicadores_pendientes)
+        ? detalle.indicadores_pendientes
+        : []
+      throw errorAPI
     }
 
     return datos
@@ -377,6 +386,7 @@ function App() {
     setError('')
     setMensaje('')
     setRevision(null)
+    setIndicadoresPendientes([])
     setPostulacionSeleccionada(postulacionId)
     setCargandoPanel(true)
 
@@ -390,6 +400,35 @@ function App() {
       setError(err.message)
     } finally {
       setCargandoPanel(false)
+    }
+  }
+
+  async function calcularRankingPostulacion() {
+    if (!revision?.postulacion_id) return
+    const id = revision.postulacion_id
+    setError('')
+    setMensaje('')
+    setIndicadoresPendientes([])
+    setCalculandoRanking(true)
+
+    try {
+      const resultado = await solicitarAPI(
+        `/api/v1/ranking/postulaciones/${id}/calcular`,
+        token,
+        { method: 'POST' }
+      )
+      // La revisión administrativa muestra el último puntaje almacenado.
+      const datosActualizados = await solicitarAPI(
+        `/api/v1/administradores/postulaciones/${id}/revision`,
+        token
+      )
+      setRevision(datosActualizados)
+      setMensaje(`Ranking calculado: ${Number(resultado.puntaje).toFixed(2)}/100. Consulta la clasificación por vacante para compararlo.`)
+    } catch (err) {
+      setIndicadoresPendientes(err.indicadoresPendientes || [])
+      setError(err.message)
+    } finally {
+      setCalculandoRanking(false)
     }
   }
 
@@ -603,6 +642,7 @@ function App() {
     setPostulaciones([])
     setPostulacionSeleccionada(null)
     setRevision(null)
+    setIndicadoresPendientes([])
     setDetalleReclutador(null)
     setEvaluaciones([])
     setRecomendacionExistente(null)
@@ -627,6 +667,7 @@ function App() {
         error={error}
         mensaje={mensaje}
         postulaciones={postulaciones}
+        token={token}
         cargandoPanel={cargandoPanel}
         actualizarPostulaciones={actualizarPostulaciones}
         verRevision={verRevision}
@@ -641,6 +682,7 @@ function App() {
         datosRevision={{
           revision, decision, setDecision, justificacion,
           setJustificacion, registrarDecision,
+          calcularRankingPostulacion, calculandoRanking, indicadoresPendientes,
         }}
         datosReclutador={{
           detalleReclutador, documentosReclutador,

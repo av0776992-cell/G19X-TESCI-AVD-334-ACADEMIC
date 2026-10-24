@@ -7,6 +7,9 @@ function RevisionAdministrador({
   justificacion,
   setJustificacion,
   registrarDecision,
+  calcularRankingPostulacion,
+  calculandoRanking,
+  indicadoresPendientes,
 }) {
   return (
     <>
@@ -45,6 +48,26 @@ function RevisionAdministrador({
                   </div>
 
                   <h3>Ranking de IA</h3>
+                  <button
+                    type="button"
+                    className="boton"
+                    onClick={calcularRankingPostulacion}
+                    disabled={cargandoPanel || calculandoRanking}
+                  >
+                    {calculandoRanking ? 'Calculando...' : 'Calcular ranking'}
+                  </button>
+                  {indicadoresPendientes.length > 0 && (
+                    <div className="informacion" role="alert">
+                      <strong>Indicadores pendientes:</strong>
+                      <ul>
+                        {indicadoresPendientes.map((indicador) => (
+                          <li key={indicador}>{indicador}</li>
+                        ))}
+                      </ul>
+                      <p>Completa esos datos antes de volver a calcular.</p>
+                    </div>
+                  )}
+
 
                   {revision.ranking ? (
                     <div className="informacion">

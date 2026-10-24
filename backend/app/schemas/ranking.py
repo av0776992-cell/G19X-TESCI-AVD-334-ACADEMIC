@@ -1,4 +1,4 @@
-
+from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 
 
@@ -27,3 +27,19 @@ class ResultadoRankingRespuesta(BaseModel):
     explicacion: str | None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class CandidatoRankingVacanteRespuesta(BaseModel):
+    postulacion_id: int
+    candidato_id: int
+    candidato_nombre: str
+    resultado_id: int | None
+    puntaje: float | None
+    metodo: str | None
+    fecha_calculo: datetime | None
+
+
+class RankingVacanteRespuesta(BaseModel):
+    vacante_id: int
+    titulo_vacante: str
+    candidatos: list[CandidatoRankingVacanteRespuesta]

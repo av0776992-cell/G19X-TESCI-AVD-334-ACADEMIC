@@ -1,10 +1,11 @@
+import RankingVacante from './RankingVacante'
 import MenuLateral from './MenuLateral'
 import PanelAdministrador from './PanelAdministrador'
 import PanelReclutador from './PanelReclutador'
 
 function PanelGestion({
   usuario, seccionPanel, setSeccionPanel, cerrarSesion, error, mensaje,
-  postulaciones, cargandoPanel, actualizarPostulaciones,
+  postulaciones, token, cargandoPanel, actualizarPostulaciones,
   verRevision, verPostulacionReclutador,
   datosVacantes, datosRevision, datosReclutador,
 }) {
@@ -74,6 +75,7 @@ function PanelGestion({
               datosReclutador={datosReclutador}
             />
           )}
+          <RankingVacante token={token} postulaciones={postulaciones} />
         </section>
       </main>
   )

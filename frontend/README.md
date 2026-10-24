@@ -40,4 +40,10 @@ npm run build
 
 Consulta el [`README.md` de la raíz](../README.md) para configurar Python, FastAPI, PostgreSQL, Alembic, los datos iniciales y el entrenamiento del modelo Random Forest.
 
-> **Nota:** La URL del backend todavía se configura en el código del frontend. Está pendiente centralizarla con `VITE_API_URL` y añadir `frontend/.env.example`.
+## Configuración de la API
+
+La URL del backend se centraliza en `src/api.js` y puede establecerse mediante `VITE_API_URL` en un archivo `.env` local. Copia `frontend/.env.example` a `frontend/.env` y modifica la URL cuando sea necesario. No subas el `.env` con datos privados.
+
+## Ranking por vacante
+
+Los roles administrador y reclutador pueden consultar la clasificación de candidatos por vacante. El administrador también puede calcular el puntaje de una postulación desde la vista de revisión. Si faltan indicadores, el sistema los muestra para que puedan completarse. La clasificación utiliza el último resultado almacenado y no toma decisiones de contratación automáticamente.
