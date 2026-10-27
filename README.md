@@ -106,14 +106,16 @@ Variables requeridas:
 
 ### 5.4. Ejecutar migraciones
 
-Con PostgreSQL iniciado y las variables configuradas:
+Con PostgreSQL iniciado, las variables configuradas y desde la raíz del repositorio:
 
 ```powershell
 cd backend
-alembic upgrade head
+python -m alembic upgrade head
 ```
 
-Alembic utilizará las migraciones almacenadas en `backend/alembic/versions/` para preparar el esquema de la base de datos. Si aparecen errores de conexión, comprueba primero `backend/.env` y PostgreSQL.
+Alembic utiliza `backend/alembic/versions/` para preparar el esquema. La revisión `a52c67d901fe` completa las columnas `vacantes.experiencia_minima_meses` y `vacantes.nivel_estudios_requerido`, que el modelo SQLAlchemy necesita y las revisiones anteriores no creaban en una instalación nueva. **Asegúrate de que esa migración se encuentre incluida en el repositorio** antes de instalar desde cero.
+
+**Seguridad:** verifica `DB_NAME` y la conexión real antes de ejecutar migraciones o scripts que escriben datos. No ejecutes instrucciones de demostración sobre una base que contenga información real. Ante un error de autenticación, comprueba las credenciales de `backend/.env` sin publicarlas ni compartirlas.
 
 ### 5.5. Inicializar catálogos y datos de ejemplo
 
@@ -190,7 +192,18 @@ El backend y el frontend se ejecutan en terminales separadas durante el desarrol
 
 Antes de iniciar Vite, copia `frontend/.env.example` a `frontend/.env` si necesitas personalizar `VITE_API_URL`. Por defecto, `frontend/src/api.js` usa `http://127.0.0.1:8000`.
 
-Los roles administrador y reclutador pueden consultar `GET /api/v1/ranking/vacantes/{vacante_id}` para visualizar las postulaciones ordenadas por su último puntaje. Desde la revisión administrativa se puede ejecutar `POST /api/v1/ranking/postulaciones/{postulacion_id}/calcular`; si faltan indicadores, la interfaz los muestra. El modelo debe haberse entrenado antes.
+Los roles administrador y reclutador pueden elegir la vacante por **título** y consultar la clasificación ordenada por el último puntaje registrado. El catálogo incluye vacantes abiertas y cerradas y muestra el ID para distinguir títulos repetidos. Pueden calcular el ranking de **todas las postulaciones de una vacante**; el sistema informa cuáles se calcularon, cuáles quedaron pendientes por indicadores y cuáles presentaron errores. El administrador también puede calcular una postulación individual desde su vista de revisión. Cada cálculo guarda nuevos resultados, por lo que debe ejecutarse con datos de demostración durante las pruebas. La clasificación es orientativa y requiere revisión humana.
+
+Rutas de ranking para reclutador y administrador:
+
+| Método | Ruta | Uso |
+| --- | --- | --- |
+| `GET` | `/api/v1/ranking/vacantes` | Catálogo de vacantes para seleccionar por título, incluidas cerradas |
+| `GET` | `/api/v1/ranking/vacantes/{vacante_id}` | Consulta de clasificación según último puntaje |
+| `POST` | `/api/v1/ranking/vacantes/{vacante_id}/calcular` | Cálculo masivo con resumen de resultados |
+| `POST` | `/api/v1/ranking/postulaciones/{postulacion_id}/calcular` | Cálculo individual de una postulación |
+
+El modelo `.joblib` debe haberse entrenado antes del cálculo.
 
 ## 7. Entrenar el modelo de ranking
 
@@ -220,7 +233,13 @@ Desde `backend/`:
 python -m pytest tests
 ```
 
-**Pruebas automatizadas ampliadas (octubre de 2026):** se ejecutaron **25 pruebas y todas aprobaron** en el entorno local del proyecto. Incluyen compatibilidad de candidatos, autenticación y contraseñas, permisos por rol y acceso a rutas del ranking, y manejo de errores cuando falta el archivo del modelo o se proporcionan indicadores inválidos. Estas pruebas utilizan simulaciones y no escriben datos en PostgreSQL. Las seis pruebas mencionadas más abajo se ejecutaron previamente en una copia limpia del repositorio; se trata de comprobaciones distintas.
+**Validación local del corte 5 (26–27 de octubre de 2026):** **37 pruebas automatizadas aprobadas** (`37 passed in 2.86s`). Incluyen compatibilidad, autenticación, permisos, clasificación por último resultado, cálculo masivo, pendientes/errores parciales y catálogo de vacantes (incluidas cerradas y títulos repetidos). También finalizaron sin errores `npm run lint`, `npm run build` y `git diff --check`. Estas pruebas automatizadas no equivalen por sí solas a la validación integral con PostgreSQL.
+
+**Prueba manual confirmada:** en una vacante ficticia con una postulación, el cálculo masivo produjo 1 calculada, 0 pendientes, 0 errores y mantuvo el puntaje de 86.97/100; después se probó el selector por título y la consulta de clasificación.
+
+**Instalación de base vacía:** en una base independiente se aplicaron las revisiones de Alembic y se crearon 21 tablas (incluida `alembic_version`). La primera carga de vacantes reveló dos columnas ausentes en las migraciones. Tras agregar la revisión `a52c67d901fe`, la comprobación del esquema fue correcta y se cargaron 3 roles, 8 estados, 10 habilidades, 10 competencias y una vacante de demostración con 4 habilidades y 4 competencias. También se crearon las cuentas de administrador y reclutador de demostración.
+
+**Todavía pendiente:** registrar y usar un candidato en esa misma instalación, completar su postulación y evaluación, verificar los tres roles de inicio a fin, probar ordenación real con múltiples postulaciones y dejar evidencia del flujo completo. Se volvió a la base local original para el trabajo cotidiano. Consulta [`docs/bitacora_prueba_integral_corte5.md`](docs/bitacora_prueba_integral_corte5.md) para los resultados y límites de la verificación.
 
 Verificación manual recomendada:
 
@@ -232,7 +251,19 @@ Verificación manual recomendada:
 - El modelo `.joblib` existe y el ranking responde cuando se usa con datos válidos.
 - El frontend carga y se comunica con la API.
 
-**Verificaciones realizadas en una copia limpia del repositorio (octubre de 2026):** instalación de dependencias del backend y del frontend, seis pruebas unitarias de compatibilidad aprobadas, comprobación de ESLint, compilación de Vite y entrenamiento local del modelo con datos sintéticos. Para ejecutar las pruebas unitarias sin configurar una base de datos real se agregó `backend/tests/conftest.py`. Estas comprobaciones no sustituyen una prueba integral con PostgreSQL y los tres roles en funcionamiento.
+**Verificación previa en copia limpia (octubre de 2026):** se instalaron dependencias, se aprobaron seis pruebas unitarias de compatibilidad, se verificó ESLint/Vite y se entrenó el modelo con datos sintéticos. El archivo `backend/tests/conftest.py` permite ejecutar pruebas unitarias sin una base real. Estas verificaciones son distintas de las 37 pruebas posteriores y no deben sumarse a ellas.
+
+## 8.1. Guion de demostración para la revisión
+
+Usa **datos ficticios**, el backend conectado a la base de datos elegida para la demo y dos terminales (FastAPI y Vite). No crees cuentas o vacantes duplicadas si ya existen.
+
+1. **Preparación:** verifica en la configuración del backend el `DB_NAME`, confirma que PostgreSQL está disponible, las migraciones están al día y el archivo `ml/models/ranking_modelo.joblib` existe.
+2. **Administrador:** inicia sesión y presenta las vacantes; verifica que se pueden consultar y gestionar según los permisos.
+3. **Candidato:** si la cuenta no existe, regístrala desde `POST /api/v1/auth/registro` en `http://127.0.0.1:8000/docs` con un correo ficticio. Inicia sesión en React, completa el perfil y registra una postulación a la vacante de prueba.
+4. **Reclutador:** revisa la postulación, descarga el PDF de prueba si lo hay y registra la evaluación y recomendación correspondientes.
+5. **Administrador o reclutador:** en «Clasificación de candidatos por vacante», elige la vacante por título y consulta sus postulaciones. Ejecuta «Calcular ranking de toda la vacante» **solo si es una vacante de demostración** y revisa calculadas, pendientes y errores.
+6. **Administrador:** revisa el puntaje actualizado y la clasificación. Explica que el sistema utiliza cinco indicadores (experiencia, habilidades, formación, competencias y evaluaciones), que el modelo se entrenó con datos sintéticos y que la decisión de contratación no es automática.
+7. **Evidencias:** registra fecha, base utilizada (sin credenciales), rol, acción, resultado esperado, resultado observado y captura o mensaje de error. Marca como «no ejecutado» todo lo que falte comprobar.
 
 ## 9. Seguridad y manejo de datos
 
@@ -248,4 +279,4 @@ Se utilizaron herramientas de asistencia con IA como apoyo para la planificació
 
 ## 11. Estado del proyecto
 
-Proyecto académico en desarrollo. Incluye un MVP con backend, frontend, esquema de datos, autenticación por roles y un módulo de ranking. Ya se comprobó la instalación de dependencias, las pruebas unitarias de compatibilidad, la compilación del frontend y el entrenamiento del modelo desde una copia limpia. Antes de la entrega final todavía debe verificarse el flujo integral con una base PostgreSQL de pruebas y confirmar el funcionamiento de los roles y las rutas principales.
+Proyecto académico en desarrollo. El MVP implementa autenticación por roles, perfiles, vacantes, postulaciones, evaluaciones y ranking predictivo individual y masivo, con consulta por título de vacante. Se aprobaron 37 pruebas automatizadas y se validaron pasos relevantes de instalación en PostgreSQL desde una base vacía. La **prueba integral completa con candidato, reclutador y administrador en una misma base limpia sigue pendiente**, junto con una comparación manual de varios candidatos. El modelo utiliza datos sintéticos y sus puntuaciones requieren revisión humana.

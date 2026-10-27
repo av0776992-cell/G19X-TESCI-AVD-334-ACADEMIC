@@ -46,4 +46,6 @@ La URL del backend se centraliza en `src/api.js` y puede establecerse mediante `
 
 ## Ranking por vacante
 
-Los roles administrador y reclutador pueden consultar la clasificación de candidatos por vacante. El administrador también puede calcular el puntaje de una postulación desde la vista de revisión. Si faltan indicadores, el sistema los muestra para que puedan completarse. La clasificación utiliza el último resultado almacenado y no toma decisiones de contratación automáticamente.
+Los roles **administrador y reclutador** pueden seleccionar una vacante por su título, incluidas las cerradas, consultar las postulaciones ordenadas por el **último puntaje guardado** y ejecutar «Calcular ranking de toda la vacante» en una vacante de demostración. El sistema resume los cálculos correctos, pendientes por indicadores y fallidos; una postulación incompleta no debe detener las demás. El administrador también puede calcular una postulación individual desde la vista de revisión. La clasificación es de apoyo y no toma decisiones de contratación automáticamente.
+
+**Pruebas:** `npm run lint` y `npm run build` se verificaron correctamente en el corte 5. Los casos automatizados del backend se ejecutan desde `backend/` con `python -m pytest tests`. Para el recorrido de demostración y el estado de la prueba con PostgreSQL, consulta el README principal y `docs/bitacora_prueba_integral_corte5.md`.
