@@ -1,9 +1,9 @@
 # Bitácora de pruebas integrales — Corte 5
 
-**Proyecto:** Sistema de Ranking Predictivo de Candidatos  
-**Periodo de evidencia:** 26–27 de octubre de 2026  
-**Tecnologías:** FastAPI, PostgreSQL 18.6, Alembic, React/Vite, scikit-learn  
-**Alcance:** pruebas automatizadas, interfaz de ranking y avance de instalación desde una base vacía. **No corresponde aún a una ejecución integral terminada.**
+**Proyecto:** Sistema de Ranking Predictivo de Candidatos
+**Periodo de evidencia:** 26–27 de octubre de 2026
+**Tecnologías:** FastAPI, PostgreSQL 18.6, Alembic, React/Vite, scikit-learn
+**Alcance:** pruebas automatizadas, interfaz de ranking, avance de instalación desde una base vacía y validación manual de los tres roles en la base de desarrollo. **No corresponde aún a una ejecución integral terminada sobre una única instalación nueva.**
 
 ## 1. Bases utilizadas
 
@@ -31,10 +31,11 @@ No se incluyen contraseñas, claves JWT, correos privados ni cadenas de conexió
 | P13 | Inicio de sesión de los tres roles en la base demo | No se completó el recorrido en la misma instalación nueva | Pendiente |
 | P14 | Perfil, postulación, evaluación y ranking de extremo a extremo en demo | No ejecutado en su totalidad | Pendiente |
 | P15 | Orden real con varias postulaciones en una vacante | No demostrado en navegador con varios candidatos; cubierto parcialmente por prueba automatizada | Pendiente manual |
+| P16 | Acceso a los tres roles en la base original | La desarrolladora confirmó manualmente que funcionan las cuentas y los paneles de candidato, reclutador y administrador en `ranking_candidatos` | Correcto en base de desarrollo |
 
 ## 3. Incidencias y resolución
 
-**INC-01 — Columnas faltantes en una instalación limpia.** La revisión previa de Alembic terminó sin error, pero el modelo SQLAlchemy de vacantes consultó columnas que no se habían creado. La revisión `a52c67d901fe` agregó de forma condicional `experiencia_minima_meses` y `nivel_estudios_requerido`; después se pudo crear la vacante y asignar requisitos. **Pendiente de publicar:** confirmar que esa migración esté versionada en GitHub académico y repetir `alembic upgrade head` sobre una base vacía en la revisión final.
+**INC-01 — Columnas faltantes en una instalación limpia.** La revisión previa de Alembic terminó sin error, pero el modelo SQLAlchemy de vacantes consultó columnas que no se habían creado. La revisión `a52c67d901fe` agregó de forma condicional `experiencia_minima_meses` y `nivel_estudios_requerido`; después se pudo crear la vacante y asignar requisitos. **Publicación:** la migración se incorporó al repositorio académico mediante el commit `84aa8e5`. **Pendiente:** repetir la instalación íntegra en una base vacía durante la revisión final.
 
 **INC-02 — Contraseña del usuario PostgreSQL modificada durante la prueba.** Hubo errores de autenticación hasta actualizar `DB_PASSWORD` en el `.env` local. Se confirmó el acceso posteriormente con `psql` y el script de continuación. No se deben versionar secretos.
 
@@ -56,4 +57,13 @@ No se incluyen contraseñas, claves JWT, correos privados ni cadenas de conexió
 
 ## 5. Conclusión provisional
 
-Se verificaron la reproducibilidad estructural de PostgreSQL/Alembic, la carga de datos iniciales, pruebas automatizadas y funciones puntuales del ranking en el navegador. **No se afirma haber completado la prueba integral de los tres roles en la nueva base**. El resultado más importante fue detectar y corregir una migración que impedía la creación de vacantes en una instalación desde cero.
+Se verificaron la reproducibilidad estructural de PostgreSQL/Alembic, la carga de datos iniciales, las pruebas automatizadas, las funciones puntuales del ranking y el acceso a los tres roles en la base original, según comprobación manual de la desarrolladora. **No se afirma haber completado la prueba integral de los tres roles en la nueva base**. El resultado más importante fue detectar y corregir una migración que impedía la creación de vacantes en una instalación desde cero.
+
+
+## 6. Actualización de la validación manual
+
+**Fecha de registro:** 27 de octubre de 2026.
+
+La desarrolladora confirmó que las cuentas y los paneles de **candidato, reclutador y administrador** funcionan en la base de desarrollo habitual, `ranking_candidatos`. Esta confirmación complementa las pruebas previas de clasificación y cálculo masivo en navegador.
+
+**Alcance y límite:** esta validación no sustituye la prueba integral de extremo a extremo sobre `ranking_corte5_demo` (registrar candidato, completar perfil, postular, evaluar y calcular), ni la verificación visual con varios candidatos. Esas evidencias permanecen pendientes.
