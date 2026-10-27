@@ -88,7 +88,7 @@ function GestionVacantesAdministrador({
                   >
                     <option value="">Seleccionar modalidad</option>
                     <option value="Presencial">Presencial</option>
-                    <option value="H?brida">H?brida</option>
+                    <option value="Híbrida">Híbrida</option>
                     <option value="Remota">Remota</option>
                   </select>
                 </div>

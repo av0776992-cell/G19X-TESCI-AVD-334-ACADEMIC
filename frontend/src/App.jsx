@@ -28,7 +28,7 @@ function App() {
   const [calculandoRanking, setCalculandoRanking] = useState(false)
   const [indicadoresPendientes, setIndicadoresPendientes] = useState([])
 
-  // Gesti?n de vacantes (administrador)
+  // Gestión de vacantes (administrador)
   const [nuevaVacante, setNuevaVacante] = useState({
     titulo: '',
     descripcion: '',
@@ -106,12 +106,12 @@ function App() {
     const vacanteId = Number(edicionVacante.vacante_id)
 
     if (!Number.isInteger(vacanteId) || vacanteId <= 0) {
-      setError('Introduce un ID de vacante v?lido.')
+      setError('Introduce un ID de vacante válido.')
       return
     }
 
     const confirmado = window.confirm(
-      `?Est?s seguro de que deseas cerrar la vacante #${vacanteId}?`
+      `¿Estás seguro de que deseas cerrar la vacante #${vacanteId}?`
     )
 
     if (!confirmado) return
@@ -152,7 +152,7 @@ function App() {
     const vacanteId = Number(edicionVacante.vacante_id)
 
     if (!Number.isInteger(vacanteId) || vacanteId <= 0) {
-      setError('Selecciona una vacante v?lida.')
+      setError('Selecciona una vacante válida.')
       return
     }
 
@@ -190,7 +190,7 @@ function App() {
     const vacanteId = Number(edicionVacante.vacante_id)
 
     if (!Number.isInteger(vacanteId) || vacanteId <= 0) {
-      setError('Introduce un ID de vacante v?lido.')
+      setError('Introduce un ID de vacante válido.')
       return
     }
 
@@ -213,7 +213,7 @@ function App() {
         nivel_estudios_requerido: datos.nivel_estudios_requerido ?? '',
       })
 
-      setMensaje(`Vacante #${vacanteId} cargada para edici?n.`)
+      setMensaje(`Vacante #${vacanteId} cargada para edición.`)
     } catch (errorSolicitud) {
       setError(errorSolicitud.message)
     }
