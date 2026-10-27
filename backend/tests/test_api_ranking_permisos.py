@@ -94,6 +94,7 @@ def usuario_en_memoria():
         ("POST", "/api/v1/ranking/postulaciones/1/calcular", None),
         ("GET", "/api/v1/ranking/postulaciones/1", None),
         ("GET", "/api/v1/ranking/vacantes/1", None),
+        ("POST", "/api/v1/ranking/vacantes/1/calcular", None),
     ],
 )
 def test_candidato_recibe_403_en_endpoints_ranking(usuario_en_memoria, metodo, ruta, datos):

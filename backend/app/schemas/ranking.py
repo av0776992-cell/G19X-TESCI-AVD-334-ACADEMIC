@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 from pydantic import BaseModel, Field, ConfigDict
 
 
@@ -43,3 +44,22 @@ class RankingVacanteRespuesta(BaseModel):
     vacante_id: int
     titulo_vacante: str
     candidatos: list[CandidatoRankingVacanteRespuesta]
+
+
+class ResultadoCalculoVacanteRespuesta(BaseModel):
+    postulacion_id: int
+    estado: Literal["calculado", "pendiente", "error"]
+    puntaje: float | None = None
+    resultado_id: int | None = None
+    indicadores_pendientes: list[str] = Field(default_factory=list)
+    mensaje: str | None = None
+
+
+class RankingVacanteCalculoRespuesta(BaseModel):
+    vacante_id: int
+    titulo_vacante: str
+    total_postulaciones: int
+    calculadas: int
+    pendientes: int
+    errores: int
+    resultados: list[ResultadoCalculoVacanteRespuesta]

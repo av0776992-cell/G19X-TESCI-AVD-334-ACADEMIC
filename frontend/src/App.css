@@ -1159,3 +1159,10 @@
   color: #1e293b;
   background: #e2e8f0;
 }
+
+.acciones-ranking-vacante {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 12px 0;
+}

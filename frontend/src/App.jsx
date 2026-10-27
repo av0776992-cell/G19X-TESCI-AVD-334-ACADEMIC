@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import PanelCandidato from './components/PanelCandidato'
 import PanelGestion from './components/PanelGestion'
-import { API_URL } from './api'
+import { API_URL, solicitarAPI } from './api'
 import './App.css'
 
 function App() {
@@ -69,38 +69,6 @@ function App() {
   const [observaciones, setObservaciones] = useState('')
   const [recomendacion, setRecomendacion] = useState('3')
   const [resumen, setResumen] = useState('')
-
-  async function solicitarAPI(ruta, tokenAcceso, opciones = {}) {
-    const respuesta = await fetch(`${API_URL}${ruta}`, {
-      ...opciones,
-      headers: {
-        Authorization: `Bearer ${tokenAcceso}`,
-        ...(opciones.body
-          ? { 'Content-Type': 'application/json' }
-          : {}),
-        ...opciones.headers,
-      },
-    })
-
-    const datos = await respuesta.json().catch(() => ({}))
-
-    if (!respuesta.ok) {
-      const detalle = datos.detail
-      const errorAPI = new Error(
-        typeof detalle === 'string'
-          ? detalle
-          : typeof detalle?.mensaje === 'string'
-            ? detalle.mensaje
-            : `Error del servidor (${respuesta.status}).`
-      )
-      errorAPI.indicadoresPendientes = Array.isArray(detalle?.indicadores_pendientes)
-        ? detalle.indicadores_pendientes
-        : []
-      throw errorAPI
-    }
-
-    return datos
-  }
 
   async function cerrarVacanteDesdePanel() {
     const vacanteId = Number(edicionVacante.vacante_id)

@@ -1,5 +1,5 @@
-
 from fastapi import APIRouter, Depends, HTTPException, status
+import logging
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -13,6 +13,7 @@ from app.models.usuario import Usuario
 from app.schemas.ranking import (
     RankingPrediccionEntrada,
     RankingPrediccionRespuesta,
+    RankingVacanteCalculoRespuesta,
     RankingVacanteRespuesta,
     ResultadoRankingRespuesta,
 )
@@ -26,6 +27,7 @@ from app.services.indicadores_ranking_service import (
 from app.services.ranking_ml_service import predecir_compatibilidad
 
 
+logger = logging.getLogger(__name__)
 router = APIRouter(
     prefix="/api/v1/ranking",
     tags=["Ranking e Inteligencia Artificial"],
@@ -51,26 +53,9 @@ def predecir_ranking(
     )
 
 
-@router.post(
-    "/postulaciones/{postulacion_id}/calcular",
-    response_model=ResultadoRankingRespuesta,
-    status_code=status.HTTP_201_CREATED,
-)
-def calcular_ranking_postulacion(
-    postulacion_id: int,
-    db: Session = Depends(get_db),
-    usuario_actual: Usuario = Depends(
-        requerir_roles("RECLUTADOR", "ADMINISTRADOR")
-    ),
-):
-    postulacion = db.get(Postulacion, postulacion_id)
-
-    if postulacion is None:
-        raise HTTPException(
-            status_code=404,
-            detail="La postulación no existe.",
-        )
-
+def _calcular_y_guardar_postulacion(db: Session, postulacion: Postulacion):
+    """Comparte el cálculo individual y por vacante; guarda solo resultados completos."""
+    postulacion_id = postulacion.id
     candidato_id = postulacion.candidato_id
     vacante_id = postulacion.vacante_id
 
@@ -93,9 +78,7 @@ def calcular_ranking_postulacion(
     }
 
     pendientes = [
-        nombre
-        for nombre, valor in indicadores.items()
-        if valor is None
+        nombre for nombre, valor in indicadores.items() if valor is None
     ]
 
     if pendientes:
@@ -108,7 +91,6 @@ def calcular_ranking_postulacion(
         )
 
     prediccion = predecir_compatibilidad(**indicadores)
-
     explicacion = (
         prediccion["explicacion"]
         + " Indicadores utilizados: "
@@ -126,12 +108,102 @@ def calcular_ranking_postulacion(
         version_modelo=prediccion["version_modelo"],
         explicacion=explicacion,
     )
-
     db.add(resultado)
     db.commit()
     db.refresh(resultado)
-
     return resultado
+
+
+@router.post(
+    "/postulaciones/{postulacion_id}/calcular",
+    response_model=ResultadoRankingRespuesta,
+    status_code=status.HTTP_201_CREATED,
+)
+def calcular_ranking_postulacion(
+    postulacion_id: int,
+    db: Session = Depends(get_db),
+    usuario_actual: Usuario = Depends(
+        requerir_roles("RECLUTADOR", "ADMINISTRADOR")
+    ),
+):
+    postulacion = db.get(Postulacion, postulacion_id)
+    if postulacion is None:
+        raise HTTPException(status_code=404, detail="La postulación no existe.")
+    return _calcular_y_guardar_postulacion(db, postulacion)
+
+
+@router.post(
+    "/vacantes/{vacante_id}/calcular",
+    response_model=RankingVacanteCalculoRespuesta,
+)
+def calcular_ranking_vacante(
+    vacante_id: int,
+    db: Session = Depends(get_db),
+    usuario_actual: Usuario = Depends(
+        requerir_roles("RECLUTADOR", "ADMINISTRADOR")
+    ),
+):
+    """Calcula cada postulación por separado; las incompletas no detienen al lote."""
+    vacante = db.get(Vacante, vacante_id)
+    if vacante is None:
+        raise HTTPException(status_code=404, detail="La vacante no existe.")
+
+    postulaciones = db.scalars(
+        select(Postulacion)
+        .where(Postulacion.vacante_id == vacante_id)
+        .order_by(Postulacion.id.asc())
+    ).all()
+
+    resultados = []
+    calculadas = pendientes = errores = 0
+    for postulacion in postulaciones:
+        postulacion_id = postulacion.id
+        try:
+            resultado = _calcular_y_guardar_postulacion(db, postulacion)
+        except HTTPException as exc:
+            if exc.status_code != 409:
+                raise
+            db.rollback()
+            pendientes += 1
+            resultados.append({
+                "postulacion_id": postulacion_id,
+                "estado": "pendiente",
+                "indicadores_pendientes": exc.detail.get(
+                    "indicadores_pendientes", []
+                ) if isinstance(exc.detail, dict) else [],
+                "mensaje": "Faltan indicadores para calcular el ranking.",
+            })
+        except Exception:
+            # La falla de una postulación no impide procesar las demás.
+            db.rollback()
+            errores += 1
+            logger.exception(
+                "Error al calcular el ranking de la postulación %s",
+                postulacion_id,
+            )
+            resultados.append({
+                "postulacion_id": postulacion_id,
+                "estado": "error",
+                "mensaje": "No se pudo calcular; revisa el registro del servidor.",
+            })
+        else:
+            calculadas += 1
+            resultados.append({
+                "postulacion_id": postulacion_id,
+                "estado": "calculado",
+                "puntaje": resultado.puntaje,
+                "resultado_id": resultado.id,
+            })
+
+    return {
+        "vacante_id": vacante.id,
+        "titulo_vacante": vacante.titulo,
+        "total_postulaciones": len(postulaciones),
+        "calculadas": calculadas,
+        "pendientes": pendientes,
+        "errores": errores,
+        "resultados": resultados,
+    }
 
 
 @router.get(

@@ -87,3 +87,95 @@ def test_ranking_vacante_inexistente_devuelve_404(sesion_ranking_vacante):
     with pytest.raises(HTTPException) as error:
         consultar_ranking_vacante(99999, db=db, usuario_actual=SimpleNamespace())
     assert error.value.status_code == 404
+
+
+def test_calculo_masivo_continua_ante_indicadores_pendientes(
+    sesion_ranking_vacante, monkeypatch
+):
+    """SQLite temporal: los incompletos no bloquean cálculos válidos."""
+    from sqlalchemy import func, select
+    from app.routers import ranking as rutas
+
+    db, vacante_id, ids = sesion_ranking_vacante
+    total_antes = db.scalar(select(func.count()).select_from(ResultadoRanking))
+    pendientes_id = db.get(Postulacion, ids[1]).candidato_id
+
+    monkeypatch.setattr(rutas, "calcular_indicador_experiencia", lambda *_: 80.0)
+    monkeypatch.setattr(rutas, "calcular_compatibilidad_habilidades",
+                        lambda _db, candidato, _vacante: None if candidato == pendientes_id else 90.0)
+    monkeypatch.setattr(rutas, "calcular_indicador_formacion", lambda *_: 75.0)
+    monkeypatch.setattr(rutas, "calcular_compatibilidad_competencias", lambda *_: 85.0)
+    monkeypatch.setattr(rutas, "calcular_indicador_evaluaciones", lambda *_: 80.0)
+    monkeypatch.setattr(rutas, "predecir_compatibilidad", lambda **_: {
+        "puntaje": 83.5,
+        "metodo": "random_forest",
+        "version_modelo": "prueba",
+        "explicacion": "Predicción simulada para prueba.",
+    })
+
+    respuesta = rutas.calcular_ranking_vacante(
+        vacante_id, db=db, usuario_actual=SimpleNamespace()
+    )
+    assert respuesta["total_postulaciones"] == 3
+    assert (respuesta["calculadas"], respuesta["pendientes"], respuesta["errores"]) == (2, 1, 0)
+    assert [fila["postulacion_id"] for fila in respuesta["resultados"]] == ids[:3]
+    assert [fila["estado"] for fila in respuesta["resultados"]] == [
+        "calculado", "pendiente", "calculado"
+    ]
+    assert respuesta["resultados"][1]["indicadores_pendientes"] == ["habilidades"]
+    assert db.scalar(select(func.count()).select_from(ResultadoRanking)) == total_antes + 2
+    # La postulación incompleta mantiene su puntaje anterior; no se insertó otro.
+    assert db.scalar(select(func.count()).select_from(ResultadoRanking)
+                     .where(ResultadoRanking.postulacion_id == ids[1])) == 1
+    # Otra vacante queda intacta.
+    assert db.scalar(select(func.count()).select_from(ResultadoRanking)
+                     .where(ResultadoRanking.postulacion_id == ids[3])) == 1
+
+
+def test_calculo_masivo_vacante_inexistente_devuelve_404(sesion_ranking_vacante):
+    from app.routers.ranking import calcular_ranking_vacante
+
+    db, _, _ = sesion_ranking_vacante
+    with pytest.raises(HTTPException) as error:
+        calcular_ranking_vacante(99999, db=db, usuario_actual=SimpleNamespace())
+    assert error.value.status_code == 404
+
+
+def test_calculo_masivo_sin_postulaciones(sesion_ranking_vacante):
+    from app.routers.ranking import calcular_ranking_vacante
+
+    db, _, _ = sesion_ranking_vacante
+    vacante = Vacante(titulo="Vacante sin candidaturas", descripcion="Sin postulaciones")
+    db.add(vacante)
+    db.commit()
+    respuesta = calcular_ranking_vacante(vacante.id, db=db, usuario_actual=SimpleNamespace())
+    assert respuesta["total_postulaciones"] == 0
+    assert respuesta["resultados"] == []
+
+
+def test_calculo_masivo_error_no_bloquea_resto(sesion_ranking_vacante, monkeypatch):
+    from sqlalchemy import func, select
+    from app.routers import ranking as rutas
+
+    db, vacante_id, ids = sesion_ranking_vacante
+    total_antes = db.scalar(select(func.count()).select_from(ResultadoRanking))
+
+    def simular_calculo(db_sesion, postulacion):
+        if postulacion.id == ids[1]:
+            raise RuntimeError("Error de prueba, no debe exponerse al cliente")
+        registro = ResultadoRanking(postulacion_id=postulacion.id, puntaje=65,
+                                    metodo="prueba", version_modelo="test")
+        db_sesion.add(registro)
+        db_sesion.commit()
+        db_sesion.refresh(registro)
+        return registro
+
+    monkeypatch.setattr(rutas, "_calcular_y_guardar_postulacion", simular_calculo)
+    respuesta = rutas.calcular_ranking_vacante(vacante_id, db=db,
+                                               usuario_actual=SimpleNamespace())
+    assert respuesta["calculadas"] == 2
+    assert respuesta["errores"] == 1
+    assert respuesta["pendientes"] == 0
+    assert respuesta["resultados"][1]["estado"] == "error"
+    assert "Error de prueba" not in respuesta["resultados"][1]["mensaje"]
+    assert db.scalar(select(func.count()).select_from(ResultadoRanking)) == total_antes + 2
