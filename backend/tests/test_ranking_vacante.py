@@ -69,6 +69,25 @@ def sesion_ranking_vacante():
         engine.dispose()
 
 
+def test_catalogo_de_ranking_incluye_cerradas_y_titulos_duplicados(sesion_ranking_vacante):
+    from app.routers.ranking import listar_vacantes_para_ranking
+
+    db, vacante_id, _ = sesion_ranking_vacante
+    cerrada = db.get(Vacante, vacante_id)
+    cerrada.estado = "CERRADA"
+    duplicada = Vacante(titulo=cerrada.titulo, descripcion="Sin postulaciones")
+    db.add(duplicada)
+    db.commit()
+
+    catalogo = listar_vacantes_para_ranking(db=db, usuario_actual=SimpleNamespace())
+    ids = [vacante.id for vacante in catalogo]
+    assert vacante_id in ids
+    assert duplicada.id in ids
+    assert [v.id for v in catalogo if v.titulo == cerrada.titulo] == [vacante_id, duplicada.id]
+    assert next(v for v in catalogo if v.id == vacante_id).estado == "CERRADA"
+    assert [v.titulo for v in catalogo] == sorted(v.titulo for v in catalogo)
+
+
 def test_ranking_vacante_usa_ultimo_resultado_y_orden_descendente(sesion_ranking_vacante):
     db, vacante_id, ids = sesion_ranking_vacante
     respuesta = consultar_ranking_vacante(

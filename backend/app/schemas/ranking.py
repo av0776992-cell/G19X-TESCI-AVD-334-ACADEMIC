@@ -40,6 +40,14 @@ class CandidatoRankingVacanteRespuesta(BaseModel):
     fecha_calculo: datetime | None
 
 
+class RankingVacanteResumenRespuesta(BaseModel):
+    id: int
+    titulo: str
+    estado: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class RankingVacanteRespuesta(BaseModel):
     vacante_id: int
     titulo_vacante: str

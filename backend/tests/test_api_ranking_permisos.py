@@ -93,6 +93,7 @@ def usuario_en_memoria():
         ("POST", "/api/v1/ranking/predecir", INDICADORES),
         ("POST", "/api/v1/ranking/postulaciones/1/calcular", None),
         ("GET", "/api/v1/ranking/postulaciones/1", None),
+        ("GET", "/api/v1/ranking/vacantes", None),
         ("GET", "/api/v1/ranking/vacantes/1", None),
         ("POST", "/api/v1/ranking/vacantes/1/calcular", None),
     ],
@@ -136,3 +137,24 @@ def test_roles_permitidos_pueden_predecir(usuario_en_memoria, monkeypatch, rol):
     assert estado == 200
     assert respuesta["puntaje"] == 82.5
     assert respuesta["metodo"] == "random_forest"
+
+
+@pytest.mark.parametrize("rol", ["RECLUTADOR", "ADMINISTRADOR"])
+def test_roles_permitidos_pueden_listar_titulos_ranking(usuario_en_memoria, rol):
+    usuario_en_memoria.usuario = SimpleNamespace(
+        id=12, activo=True, rol=SimpleNamespace(nombre=rol)
+    )
+    usuario_en_memoria.scalars = lambda _consulta: SimpleNamespace(
+        all=lambda: [
+            SimpleNamespace(id=2, titulo="Desarrollador Full Stack", estado="CERRADA"),
+            SimpleNamespace(id=3, titulo="Analista", estado="ABIERTA"),
+        ]
+    )
+    token = crear_token_acceso(12, rol)
+
+    estado, datos = solicitar("GET", "/api/v1/ranking/vacantes", token=token)
+    assert estado == 200
+    assert datos == [
+        {"id": 2, "titulo": "Desarrollador Full Stack", "estado": "CERRADA"},
+        {"id": 3, "titulo": "Analista", "estado": "ABIERTA"},
+    ]

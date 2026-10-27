@@ -1,25 +1,57 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { solicitarAPI } from '../api'
 
-function RankingVacante({ token, postulaciones }) {
+function RankingVacante({ token }) {
   const [vacanteId, setVacanteId] = useState('')
+  const [vacantes, setVacantes] = useState([])
+  const [cargandoVacantes, setCargandoVacantes] = useState(true)
+  const [errorVacantes, setErrorVacantes] = useState('')
+  const [revisionCatalogo, setRevisionCatalogo] = useState(0)
   const [ranking, setRanking] = useState(null)
   const [resumen, setResumen] = useState(null)
   const [cargando, setCargando] = useState(false)
   const [error, setError] = useState('')
 
-  const vacantesConPostulaciones = [...new Set(
-    postulaciones.map((postulacion) => Number(postulacion.vacante_id))
-      .filter((id) => Number.isInteger(id) && id > 0)
-  )].sort((a, b) => a - b)
+  // El catálogo incluye también vacantes cerradas para poder revisar su historial.
+  useEffect(() => {
+    const controlador = new AbortController()
+    solicitarAPI('/api/v1/ranking/vacantes', token, {
+      signal: controlador.signal,
+    })
+      .then((datos) => {
+        if (controlador.signal.aborted) return
+        setVacantes(datos)
+        setErrorVacantes('')
+      })
+      .catch((err) => {
+        if (controlador.signal.aborted) return
+        setVacantes([])
+        setErrorVacantes(err instanceof TypeError
+          ? 'No se pudo conectar con FastAPI para cargar las vacantes.'
+          : err.message)
+      })
+      .finally(() => {
+        if (!controlador.signal.aborted) setCargandoVacantes(false)
+      })
+    return () => controlador.abort()
+  }, [token, revisionCatalogo])
+
+  const vacanteSeleccionada = vacantes.find(
+    (vacante) => String(vacante.id) === vacanteId
+  )
+
+  function actualizarCatalogo() {
+    setErrorVacantes('')
+    setCargandoVacantes(true)
+    setRevisionCatalogo((anterior) => anterior + 1)
+  }
 
   function obtenerVacanteId() {
-    const id = Number(vacanteId)
-    if (!Number.isInteger(id) || id <= 0) {
-      setError('Selecciona un ID de vacante válido.')
+    if (!vacanteSeleccionada) {
+      setError('Selecciona una vacante de la lista.')
       return null
     }
-    return id
+    return vacanteSeleccionada.id
   }
 
   async function consultar(evento) {
@@ -44,7 +76,7 @@ function RankingVacante({ token, postulaciones }) {
     const id = obtenerVacanteId()
     if (id === null) return
     const confirmado = window.confirm(
-      `¿Calcular y guardar un nuevo puntaje para todas las postulaciones de la vacante #${id}?`
+      `¿Calcular y guardar un nuevo puntaje para todas las postulaciones de "${vacanteSeleccionada.titulo}" (vacante #${id})?`
     )
     if (!confirmado) return
 
@@ -72,36 +104,48 @@ function RankingVacante({ token, postulaciones }) {
       <p className="nota">Consulta el último puntaje de cada postulación. Quienes aún no tienen ranking aparecen al final. La clasificación es orientativa y requiere revisión humana.</p>
       <form onSubmit={consultar}>
         <div className="campo">
-          <label htmlFor="vacante-ranking-id">ID de la vacante</label>
-          <input
+          <label htmlFor="vacante-ranking-id">Vacante</label>
+          <select
             id="vacante-ranking-id"
-            type="number"
-            min="1"
-            step="1"
-            list="vacantes-ranking-disponibles"
             value={vacanteId}
-            disabled={cargando}
+            disabled={cargando || cargandoVacantes || vacantes.length === 0}
             onChange={(evento) => {
               setVacanteId(evento.target.value)
               setResumen(null)
               setRanking(null)
               setError('')
             }}
-            placeholder="Ej. 1"
             required
-          />
-          <datalist id="vacantes-ranking-disponibles">
-            {vacantesConPostulaciones.map((id) => <option key={id} value={id} />)}
-          </datalist>
+          >
+            <option value="">Selecciona una vacante por su título</option>
+            {vacantes.map((vacante) => (
+              <option key={vacante.id} value={String(vacante.id)}>
+                {vacante.titulo} (#{vacante.id} · {vacante.estado === 'CERRADA' ? 'Cerrada' : 'Abierta'})
+              </option>
+            ))}
+          </select>
+          {cargandoVacantes && <p className="nota" role="status">Cargando vacantes...</p>}
+          {!cargandoVacantes && !errorVacantes && vacantes.length === 0 && (
+            <p className="nota">No hay vacantes registradas.</p>
+          )}
+          {errorVacantes && <p className="mensaje-error" role="alert">{errorVacantes}</p>}
+          <button
+            type="button"
+            className="boton boton-secundario"
+            disabled={cargando || cargandoVacantes}
+            onClick={actualizarCatalogo}
+          >
+            Actualizar lista de vacantes
+          </button>
         </div>
         <div className="acciones-ranking-vacante">
-          <button type="submit" className="boton" disabled={cargando}>
+          <button type="submit" className="boton" disabled={cargando || !vacanteSeleccionada}>
             {cargando ? 'Procesando...' : 'Consultar / actualizar clasificación'}
           </button>
           <button
             type="button"
             className="boton"
-            disabled={cargando || !vacanteId}
+            disabled={cargando || !vacanteSeleccionada}
             onClick={calcularTodaVacante}
           >
             {cargando ? 'Procesando...' : 'Calcular ranking de toda la vacante'}

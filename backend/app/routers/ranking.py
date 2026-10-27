@@ -14,6 +14,7 @@ from app.schemas.ranking import (
     RankingPrediccionEntrada,
     RankingPrediccionRespuesta,
     RankingVacanteCalculoRespuesta,
+    RankingVacanteResumenRespuesta,
     RankingVacanteRespuesta,
     ResultadoRankingRespuesta,
 )
@@ -32,6 +33,22 @@ router = APIRouter(
     prefix="/api/v1/ranking",
     tags=["Ranking e Inteligencia Artificial"],
 )
+
+
+@router.get(
+    "/vacantes",
+    response_model=list[RankingVacanteResumenRespuesta],
+)
+def listar_vacantes_para_ranking(
+    db: Session = Depends(get_db),
+    usuario_actual: Usuario = Depends(
+        requerir_roles("RECLUTADOR", "ADMINISTRADOR")
+    ),
+):
+    """Catálogo de títulos para el ranking, incluidas las vacantes cerradas."""
+    return db.scalars(
+        select(Vacante).order_by(Vacante.titulo.asc(), Vacante.id.asc())
+    ).all()
 
 
 @router.post(
