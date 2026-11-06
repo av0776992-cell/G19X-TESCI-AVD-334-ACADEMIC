@@ -65,3 +65,27 @@ Resultado del ranking masivo:
 Resultado: APROBADO.
 Se comprobaron en React los tres puntajes y su orden.
 La prueba utilizo datos ficticios sin modificar la base original.
+
+## Validacion de decision final - 6 de noviembre de 2026
+
+Commit probado: b151d6f
+Base: ranking_corte7_demo
+Vacante: [DEMO C7] Desarrollador Backend Jr.
+Postulacion: #1 - Ana (DEMO C7)
+
+Administrador:
+- Registro la decision final "Aceptado".
+
+Candidata Ana:
+- Inicio sesion con su cuenta de demostracion.
+- Consulto la seccion "Mis postulaciones".
+- Estado observado: Aceptado.
+- Decision final observada: Aceptado.
+- Fecha de decision: 6 de noviembre de 2026.
+
+Resultado: APROBADO.
+Se comprobo visualmente que la candidata puede consultar
+la decision registrada por el administrador.
+
+Nota: prueba realizada con base nueva de demostracion,
+sin repetir todo el proceso en un clon independiente.
