@@ -76,9 +76,9 @@ def test_formacion_sin_registros_sigue_pendiente():
     assert calcular_indicador_formacion(db, 1, 2) is None
 
 
-def test_requisito_sin_nivel_sigue_pendiente_en_esta_mejora():
-    db = SesionFicticia(None, ["Maestría"])
-    assert calcular_indicador_formacion(db, 1, 2) is None
+def test_formacion_sin_requisito_es_compatible():
+    db = SesionFicticia(None, [])
+    assert calcular_indicador_formacion(db, 1, 2) == 100.0
 
 
 def test_formacion_crear_acepta_nivel_con_acento_o_sin_acento():

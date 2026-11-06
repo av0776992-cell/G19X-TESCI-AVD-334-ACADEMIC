@@ -116,6 +116,9 @@ def _calcular_y_guardar_postulacion(db: Session, postulacion: Postulacion):
             for nombre, valor in indicadores.items()
         )
         + "."
+        + " Criterio: un requisito no especificado se considera cumplido "
+        + "(100 de compatibilidad); esto no acredita formación, "
+        + "habilidades ni experiencia del candidato."
     )
 
     resultado = ResultadoRanking(

@@ -1,4 +1,4 @@
-﻿from types import SimpleNamespace
+from types import SimpleNamespace
 
 from app.services.indicadores_ranking_service import calcular_compatibilidad
 
@@ -60,7 +60,7 @@ def test_sin_requisitos_definidos():
         [], {1: 5}, "habilidad_id"
     )
 
-    assert resultado is None
+    assert resultado == 100.0
 
 
 def test_varias_habilidades():

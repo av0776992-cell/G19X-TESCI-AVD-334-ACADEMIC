@@ -21,8 +21,10 @@ def calcular_compatibilidad(
     niveles_candidato: dict[int, int | None],
     campo_identificador: str,
 ) -> float | None:
+    # Sin requisitos de esta categoría, cualquier candidato cumple la vacante.
+    # Es compatibilidad con la exigencia, NO una habilidad demostrada.
     if not requisitos:
-        return None
+        return 100.0
 
     compatibilidades = []
 
@@ -133,11 +135,12 @@ def calcular_indicador_experiencia(
 
     meses_requeridos = vacante.experiencia_minima_meses
 
-    if meses_requeridos is None or meses_requeridos < 0:
-        return None
-
-    if meses_requeridos == 0:
+    # Registros anteriores pueden tener NULL: significa sin mínimo exigido.
+    if meses_requeridos is None or meses_requeridos == 0:
         return 100.0
+
+    if meses_requeridos < 0:
+        return None
 
     experiencias = db.scalars(
         select(Experiencia).where(
@@ -195,8 +198,12 @@ def calcular_indicador_formacion(
 ) -> float | None:
     vacante = db.get(Vacante, vacante_id)
 
-    if vacante is None or not vacante.nivel_estudios_requerido:
+    if vacante is None:
         return None
+
+    # Requisito opcional no definido: compatibilidad, no título acreditado.
+    if not (vacante.nivel_estudios_requerido or "").strip():
+        return 100.0
 
     formaciones = db.scalars(
         select(Formacion).where(
