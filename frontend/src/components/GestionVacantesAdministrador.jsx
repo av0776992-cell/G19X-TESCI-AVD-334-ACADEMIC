@@ -1,6 +1,10 @@
+import { useEffect, useState } from 'react'
+import { solicitarAPI } from '../api'
 import { NIVELES_ESTUDIO } from '../nivelesEstudio'
 // Interfaz extraida de App.jsx; conserva estilos y funciones existentes.
 function GestionVacantesAdministrador({
+  token,
+  revisionCatalogos,
   nuevaVacante,
   setNuevaVacante,
   creandoVacante,
@@ -17,6 +21,43 @@ function GestionVacantesAdministrador({
   cerrarVacanteDesdePanel,
   cerrandoVacante,
 }) {
+  const [vacantes, setVacantes] = useState([])
+  const [habilidades, setHabilidades] = useState([])
+  const [competencias, setCompetencias] = useState([])
+  const [cargandoCatalogos, setCargandoCatalogos] = useState(true)
+  const [errorCatalogos, setErrorCatalogos] = useState('')
+  const [revisionLocal, setRevisionLocal] = useState(0)
+
+  useEffect(() => {
+    const controlador = new AbortController()
+    Promise.all([
+      solicitarAPI('/api/v1/ranking/vacantes', token, { signal: controlador.signal }),
+      solicitarAPI('/api/v1/habilidades/catalogo', token, { signal: controlador.signal }),
+      solicitarAPI('/api/v1/competencias/catalogo', token, { signal: controlador.signal }),
+    ]).then(([listaVacantes, listaHabilidades, listaCompetencias]) => {
+      if (controlador.signal.aborted) return
+      setVacantes(listaVacantes.filter((item) => item.estado === 'ABIERTA'))
+      setHabilidades(listaHabilidades)
+      setCompetencias(listaCompetencias)
+      setErrorCatalogos('')
+    }).catch((error) => {
+      if (!controlador.signal.aborted) {
+        setErrorCatalogos(`No se pudieron cargar las opciones: ${error.message}`)
+      }
+    }).finally(() => {
+      if (!controlador.signal.aborted) setCargandoCatalogos(false)
+    })
+    return () => controlador.abort()
+  }, [token, revisionCatalogos, revisionLocal])
+
+  const requisitos = requisitoVacante.tipo === 'habilidades' ? habilidades : competencias
+
+  function actualizarListas() {
+    setCargandoCatalogos(true)
+    setErrorCatalogos('')
+    setRevisionLocal((anterior) => anterior + 1)
+  }
+
   return (
     <>
             <section id="panel-vacantes" className="panel-seccion">
@@ -150,14 +191,18 @@ function GestionVacantesAdministrador({
                 Asigna habilidades y competencias a una vacante abierta.
               </p>
 
+              <button type="button" className="boton boton-secundario" onClick={actualizarListas} disabled={cargandoCatalogos}>
+                Actualizar listas de opciones
+              </button>
+              {cargandoCatalogos && <p className="nota" role="status">Cargando vacantes y requisitos...</p>}
+              {errorCatalogos && <p className="mensaje-error" role="alert">{errorCatalogos}</p>}
               <form onSubmit={guardarRequisitoVacante}>
                 <div className="campo">
-                  <label htmlFor="requisito-vacante-id">ID de vacante</label>
-                  <input
+                  <label htmlFor="requisito-vacante-id">Vacante</label>
+                  <select
                     id="requisito-vacante-id"
-                    type="number"
-                    min="1"
                     required
+                    disabled={cargandoCatalogos || vacantes.length === 0}
                     value={requisitoVacante.vacante_id}
                     onChange={(evento) =>
                       setRequisitoVacante({
@@ -165,7 +210,12 @@ function GestionVacantesAdministrador({
                         vacante_id: evento.target.value,
                       })
                     }
-                  />
+                  >
+                    <option value="">Selecciona una vacante</option>
+                    {vacantes.map((vacante) => (
+                      <option key={vacante.id} value={String(vacante.id)}>{vacante.titulo}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="campo">
@@ -187,12 +237,13 @@ function GestionVacantesAdministrador({
                 </div>
 
                 <div className="campo">
-                  <label htmlFor="requisito-id">ID del requisito</label>
-                  <input
+                  <label htmlFor="requisito-id">
+                    {requisitoVacante.tipo === 'habilidades' ? 'Habilidad' : 'Competencia'}
+                  </label>
+                  <select
                     id="requisito-id"
-                    type="number"
-                    min="1"
                     required
+                    disabled={cargandoCatalogos || requisitos.length === 0}
                     value={requisitoVacante.requisito_id}
                     onChange={(evento) =>
                       setRequisitoVacante({
@@ -200,7 +251,12 @@ function GestionVacantesAdministrador({
                         requisito_id: evento.target.value,
                       })
                     }
-                  />
+                  >
+                    <option value="">Selecciona un requisito por nombre</option>
+                    {requisitos.map((requisito) => (
+                      <option key={requisito.id} value={String(requisito.id)}>{requisito.nombre}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="campo">
@@ -233,28 +289,34 @@ function GestionVacantesAdministrador({
 
             <section className="panel-seccion">
               <h2>Editar o cerrar vacante</h2>
-              <p>Introduce el ID de una vacante abierta y carga sus datos.</p>
+              <p>Selecciona una vacante abierta por su título para consultar o actualizar sus datos.</p>
 
               <div className="campo">
-                <label htmlFor="editar-vacante-id">ID de vacante</label>
-                <input
+                <label htmlFor="editar-vacante-id">Vacante</label>
+                <select
                   id="editar-vacante-id"
-                  type="number"
-                  min="1"
                   value={edicionVacante.vacante_id}
+                  disabled={cargandoCatalogos || vacantes.length === 0}
                   onChange={(evento) =>
                     setEdicionVacante({
                       ...edicionVacante,
                       vacante_id: evento.target.value,
+                      titulo: '',
                     })
                   }
-                />
+                >
+                  <option value="">Selecciona una vacante</option>
+                  {vacantes.map((vacante) => (
+                    <option key={vacante.id} value={String(vacante.id)}>{vacante.titulo}</option>
+                  ))}
+                </select>
               </div>
 
               <button
                 type="button"
                 className="boton boton-secundario"
                 onClick={cargarVacanteParaEditar}
+                disabled={cargandoCatalogos || !edicionVacante.vacante_id}
               >
                 Cargar vacante
               </button>

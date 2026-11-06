@@ -8,13 +8,14 @@ from app.core.dependencies import requerir_roles
 from app.models.candidato import Candidato
 from app.models.evaluacion_reclutador import EvaluacionReclutador
 from app.models.postulacion import Postulacion
+from app.services.presentacion_postulaciones import listar_postulaciones_con_nombres
 from app.models.usuario import Usuario
 from app.models.vacante import Vacante
 from app.schemas.evaluacion_reclutador import (
     EvaluacionReclutadorCrear,
     EvaluacionReclutadorRespuesta,
 )
-from app.schemas.postulacion import PostulacionRespuesta
+from app.schemas.postulacion import PostulacionPersonalRespuesta
 from app.schemas.reclutador import PostulacionDetalleReclutador
 
 
@@ -26,7 +27,7 @@ router = APIRouter(
 
 @router.get(
     "/postulaciones",
-    response_model=list[PostulacionRespuesta],
+    response_model=list[PostulacionPersonalRespuesta],
 )
 def listar_postulaciones_recibidas(
     usuario_actual: Usuario = Depends(
@@ -34,12 +35,7 @@ def listar_postulaciones_recibidas(
     ),
     db: Session = Depends(get_db),
 ):
-    postulaciones = db.scalars(
-        select(Postulacion)
-        .order_by(Postulacion.fecha_postulacion.desc())
-    ).all()
-
-    return postulaciones
+    return listar_postulaciones_con_nombres(db)
 
 
 @router.get(

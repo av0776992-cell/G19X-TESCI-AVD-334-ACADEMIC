@@ -33,16 +33,14 @@ function ListaPostulaciones({
                       key={postulacion.id}
                     >
                       <strong>
-                        Postulación #{postulacion.id}
+                        {postulacion.nombre_candidato || `Candidato #${postulacion.candidato_id}`}
                       </strong>
 
                       <p>
-                        Candidato: {postulacion.candidato_id}
+                        <strong>Vacante:</strong>{' '}
+                        {postulacion.titulo_vacante || `Vacante #${postulacion.vacante_id}`}
                       </p>
-
-                      <p>
-                        Vacante: {postulacion.vacante_id}
-                      </p>
+                      <p className="nota">Postulación #{postulacion.id}</p>
 
                       <button
                         type="button"

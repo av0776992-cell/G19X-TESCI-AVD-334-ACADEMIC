@@ -7,6 +7,9 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.dependencies import requerir_roles
 from app.models.decision import Decision
+from app.models.candidato import Candidato
+from app.models.vacante import Vacante
+from app.services.presentacion_postulaciones import listar_postulaciones_con_nombres
 from app.models.evaluacion_reclutador import EvaluacionReclutador
 from app.models.postulacion import Postulacion
 from app.models.resultado_ranking import ResultadoRanking
@@ -27,21 +30,7 @@ def listar_postulaciones(
     usuario_actual: Usuario = Depends(solo_administrador),
     db: Session = Depends(get_db),
 ):
-    postulaciones = db.scalars(
-        select(Postulacion).order_by(
-            Postulacion.fecha_postulacion.desc()
-        )
-    ).all()
-
-    return [
-        {
-            "id": postulacion.id,
-            "candidato_id": postulacion.candidato_id,
-            "vacante_id": postulacion.vacante_id,
-            "fecha_postulacion": postulacion.fecha_postulacion,
-        }
-        for postulacion in postulaciones
-    ]
+    return listar_postulaciones_con_nombres(db)
 
 
 @router.get("/postulaciones/{postulacion_id}/revision")
@@ -79,10 +68,16 @@ def revisar_postulacion(
         )
     )
 
+    candidato = db.get(Candidato, postulacion.candidato_id)
+    candidato_usuario = db.get(Usuario, candidato.usuario_id) if candidato else None
+    vacante = db.get(Vacante, postulacion.vacante_id)
+
     return {
         "postulacion_id": postulacion.id,
         "candidato_id": postulacion.candidato_id,
         "vacante_id": postulacion.vacante_id,
+        "nombre_candidato": candidato_usuario.nombre if candidato_usuario else None,
+        "titulo_vacante": vacante.titulo if vacante else None,
         "ranking": (
             {
                 "puntaje": ranking.puntaje,

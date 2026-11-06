@@ -17,6 +17,11 @@ class PostulacionRespuesta(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class PostulacionPersonalRespuesta(PostulacionRespuesta):
+    nombre_candidato: str
+    titulo_vacante: str
+
+
 class PostulacionSeguimientoRespuesta(PostulacionRespuesta):
     titulo_vacante: str
     estado_actual: str

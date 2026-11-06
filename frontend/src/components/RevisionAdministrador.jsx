@@ -38,12 +38,12 @@ function RevisionAdministrador({
                   <div className="informacion">
                     <p>
                       <strong>Candidato:</strong>{' '}
-                      {revision.candidato_id}
+                      {revision.nombre_candidato || `Candidato #${revision.candidato_id}`}
                     </p>
 
                     <p>
                       <strong>Vacante:</strong>{' '}
-                      {revision.vacante_id}
+                      {revision.titulo_vacante || `Vacante #${revision.vacante_id}`}
                     </p>
                   </div>
 

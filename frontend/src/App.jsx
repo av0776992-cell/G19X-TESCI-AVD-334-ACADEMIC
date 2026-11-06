@@ -56,6 +56,7 @@ function App() {
   })
   const [guardandoEdicionVacante, setGuardandoEdicionVacante] = useState(false)
   const [cerrandoVacante, setCerrandoVacante] = useState(false)
+  const [revisionCatalogos, setRevisionCatalogos] = useState(0)
 
 
 
@@ -96,6 +97,7 @@ function App() {
       )
 
       setMensaje(`Vacante #${vacanteId} cerrada correctamente.`)
+      setRevisionCatalogos((anterior) => anterior + 1)
       setEdicionVacante({
         vacante_id: '',
         titulo: '',
@@ -147,6 +149,7 @@ function App() {
       )
 
       setMensaje(`Vacante #${vacanteId} actualizada correctamente.`)
+      setRevisionCatalogos((anterior) => anterior + 1)
     } catch (errorSolicitud) {
       setError(errorSolicitud.message)
     } finally {
@@ -254,6 +257,7 @@ function App() {
       )
 
       setMensaje(`Vacante #${datos.id} creada correctamente.`)
+      setRevisionCatalogos((anterior) => anterior + 1)
       setNuevaVacante({
         titulo: '',
         descripcion: '',
@@ -641,6 +645,7 @@ function App() {
         verRevision={verRevision}
         verPostulacionReclutador={verPostulacionReclutador}
         datosVacantes={{
+          token, revisionCatalogos,
           nuevaVacante, setNuevaVacante, creandoVacante, crearVacante,
           requisitoVacante, setRequisitoVacante, guardandoRequisito,
           guardarRequisitoVacante, edicionVacante, setEdicionVacante,
