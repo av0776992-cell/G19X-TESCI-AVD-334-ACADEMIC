@@ -46,3 +46,22 @@ Los conteos de pruebas son **sucesivos**, no acumulativos: el total más recient
 ## 4. Conclusión provisional
 
 El corte 7 tiene **cinco correcciones publicadas** y **92 pruebas aprobadas**, además de compilación React y lint correctos. El informe externo confirmó la posibilidad de instalar y recorrer una versión anterior, y sus fallos de niveles y requisitos motivaron las correcciones actuales. Para cerrar la evidencia funcional en la versión publicada, aún es necesario observar el cálculo de tres candidatos reales de demostración sobre una **instalación independiente**, comprobar las nuevas listas y documentar capturas y resultados sin exponer secretos.
+
+## Validacion funcional - 6 de noviembre de 2026
+
+Commit probado: ed3a18d
+Base: ranking_corte7_demo
+Vacante: [DEMO C7] Desarrollador Backend Jr.
+
+Resultado del ranking masivo:
+- Total de postulaciones: 3
+- Calculadas: 3
+- Pendientes: 0
+- Errores: 0
+- Primer lugar: Ana, 86.95/100
+- Segundo lugar: Beto, 86.86/100
+- Tercer lugar: Carla, 71.28/100
+
+Resultado: APROBADO.
+Se comprobaron en React los tres puntajes y su orden.
+La prueba utilizo datos ficticios sin modificar la base original.
