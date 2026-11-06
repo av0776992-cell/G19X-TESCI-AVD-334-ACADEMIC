@@ -13,6 +13,7 @@ from app.models.evaluacion import Evaluacion
 from app.models.experiencia import Experiencia
 from app.models.formacion import Formacion
 from app.models.vacante import Vacante
+from app.core.niveles_estudio import rango_nivel
 
 
 def calcular_compatibilidad(
@@ -206,26 +207,13 @@ def calcular_indicador_formacion(
     if not formaciones:
         return None
 
-    niveles = {
-        "secundaria": 1,
-        "bachillerato": 2,
-        "tecnico": 3,
-        "licenciatura en curso": 4,
-        "licenciatura": 5,
-        "maestria": 6,
-        "doctorado": 7,
-    }
-
-    requerido = vacante.nivel_estudios_requerido.strip().casefold()
-    nivel_requerido = niveles.get(requerido)
-
+    nivel_requerido = rango_nivel(vacante.nivel_estudios_requerido)
     if nivel_requerido is None:
         return None
 
     niveles_candidato = [
-        niveles.get(formacion.nivel.strip().casefold())
+        rango_nivel(formacion.nivel)
         for formacion in formaciones
-        if formacion.nivel
     ]
 
     niveles_validos = [

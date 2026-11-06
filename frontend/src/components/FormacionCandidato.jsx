@@ -1,3 +1,4 @@
+import { NIVELES_ESTUDIO } from '../nivelesEstudio'
 
 import { useCallback, useEffect, useState } from 'react'
 import { API_URL } from '../api'
@@ -304,14 +305,9 @@ export default function FormacionCandidato({ token }) {
                 onChange={cambiarCampo}
               >
                 <option value="">Seleccionar nivel</option>
-                <option value="Secundaria">Secundaria</option>
-                <option value="Bachillerato">Bachillerato</option>
-                <option value="Técnico">Técnico</option>
-                <option value="Licenciatura">Licenciatura</option>
-                <option value="Ingeniería">Ingeniería</option>
-                <option value="Especialidad">Especialidad</option>
-                <option value="Maestría">Maestría</option>
-                <option value="Doctorado">Doctorado</option>
+                {NIVELES_ESTUDIO.map((nivel) => (
+                  <option key={nivel} value={nivel}>{nivel}</option>
+                ))}
               </select>
             </div>
 

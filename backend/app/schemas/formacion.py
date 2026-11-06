@@ -2,6 +2,8 @@ from datetime import date
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from app.core.niveles_estudio import validar_nivel_estudios
+
 
 class FormacionCrear(BaseModel):
     institucion: str = Field(
@@ -37,6 +39,11 @@ class FormacionCrear(BaseModel):
             )
 
         return valor
+
+    @field_validator("nivel")
+    @classmethod
+    def validar_nivel(cls, valor: str | None) -> str | None:
+        return validar_nivel_estudios(valor)
 
 
 class FormacionActualizar(BaseModel):
@@ -75,6 +82,11 @@ class FormacionActualizar(BaseModel):
             )
 
         return valor
+
+    @field_validator("nivel")
+    @classmethod
+    def validar_nivel(cls, valor: str | None) -> str | None:
+        return validar_nivel_estudios(valor)
 
 
 class FormacionRespuesta(BaseModel):

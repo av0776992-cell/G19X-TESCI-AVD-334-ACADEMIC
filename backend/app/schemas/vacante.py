@@ -1,6 +1,8 @@
-﻿from datetime import datetime
+from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from app.core.niveles_estudio import validar_nivel_estudios
 
 
 class VacanteHabilidadRespuesta(BaseModel):
@@ -43,8 +45,12 @@ class VacanteCrear(BaseModel):
     ubicacion: str | None = None
     modalidad: str | None = None
     experiencia_minima_meses: int = Field(default=0, ge=0)
-    nivel_estudios_requerido: str | None = None
+    nivel_estudios_requerido: str | None = Field(default=None, max_length=100)
 
+    @field_validator("nivel_estudios_requerido")
+    @classmethod
+    def validar_nivel(cls, valor: str | None) -> str | None:
+        return validar_nivel_estudios(valor)
 
 
 class VacanteHabilidadAsignar(BaseModel):
@@ -64,3 +70,8 @@ class VacanteActualizar(BaseModel):
     modalidad: str | None = Field(default=None, max_length=50)
     experiencia_minima_meses: int | None = Field(default=None, ge=0)
     nivel_estudios_requerido: str | None = Field(default=None, max_length=100)
+
+    @field_validator("nivel_estudios_requerido")
+    @classmethod
+    def validar_nivel(cls, valor: str | None) -> str | None:
+        return validar_nivel_estudios(valor)

@@ -1,3 +1,4 @@
+import { NIVELES_ESTUDIO } from '../nivelesEstudio'
 // Interfaz extraida de App.jsx; conserva estilos y funciones existentes.
 function GestionVacantesAdministrador({
   nuevaVacante,
@@ -116,10 +117,8 @@ function GestionVacantesAdministrador({
                   <label htmlFor="vacante-estudios">
                     Nivel de estudios requerido
                   </label>
-                  <input
+                  <select
                     id="vacante-estudios"
-                    type="text"
-                    maxLength={100}
                     value={nuevaVacante.nivel_estudios_requerido}
                     onChange={(evento) =>
                       setNuevaVacante({
@@ -127,7 +126,12 @@ function GestionVacantesAdministrador({
                         nivel_estudios_requerido: evento.target.value,
                       })
                     }
-                  />
+                  >
+                    <option value="">Sin requisito académico</option>
+                    {NIVELES_ESTUDIO.map((nivel) => (
+                      <option key={nivel} value={nivel}>{nivel}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <button
@@ -337,7 +341,7 @@ function GestionVacantesAdministrador({
                     <label htmlFor="editar-vacante-estudios">
                       Nivel de estudios requerido
                     </label>
-                    <input
+                    <select
                       id="editar-vacante-estudios"
                       value={edicionVacante.nivel_estudios_requerido}
                       onChange={(evento) =>
@@ -346,7 +350,12 @@ function GestionVacantesAdministrador({
                           nivel_estudios_requerido: evento.target.value,
                         })
                       }
-                    />
+                    >
+                      <option value="">Sin requisito académico</option>
+                      {NIVELES_ESTUDIO.map((nivel) => (
+                        <option key={nivel} value={nivel}>{nivel}</option>
+                      ))}
+                    </select>
                   </div>
 
                   <button
