@@ -146,7 +146,7 @@ def crear_vacante(
     if not vacante.titulo or not vacante.descripcion:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="El tÃ­tulo y la descripciÃ³n no pueden estar vacÃ­os",
+            detail="El título y la descripción no pueden estar vacíos",
         )
 
     db.add(vacante)

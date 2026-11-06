@@ -2,6 +2,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.core.cors import obtener_origenes_cors
+
 from app.routers.auth import router as auth_router
 from app.routers.candidatos import router as candidatos_router
 from app.routers.formaciones import router as formaciones_router
@@ -26,13 +28,10 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Permitir solicitudes desde React durante el desarrollo local.
+# Orígenes configurables; por defecto se mantienen los dos de desarrollo local.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=obtener_origenes_cors(),
     allow_credentials=False,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
