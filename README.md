@@ -79,6 +79,8 @@ Si ya existe un entorno virtual funcional, puede reutilizarse y omitirse su crea
 
 En PostgreSQL, crea una base de datos vacía para el proyecto y un usuario con permisos adecuados. Anota el nombre de la base de datos, usuario, contraseña, servidor y puerto: se utilizarán en `backend/.env`.
 
+**Para la demostración reproducible del corte 7**, crea la base independiente `ranking_corte7_demo` (el preparador comprueba ese nombre y no funciona sobre `ranking_candidatos`). La base habitual del proyecto puede conservar su propio nombre.
+
 No compartas credenciales reales ni las publiques en GitHub.
 
 ### 5.3. Configurar variables de entorno
@@ -101,6 +103,7 @@ Variables requeridas:
 | `JWT_SECRET_KEY` | Clave secreta para tokens, generada de forma segura |
 | `JWT_ALGORITHM` | Algoritmo JWT utilizado por el backend |
 | `JWT_EXPIRE_MINUTES` | Vigencia de los tokens en minutos |
+| `CORS_ORIGINS` (opcional) | Orígenes permitidos del frontend, separados por comas; por defecto `http://localhost:5173,http://127.0.0.1:5173` |
 
 **Importante:** el archivo `backend/.env` contiene secretos y debe permanecer fuera del control de versiones. El `.env.example` únicamente contendrá valores ficticios.
 
@@ -155,12 +158,25 @@ python -m scripts.completar_perfil_prueba
 
 #### Demostración reproducible del corte 7 (recomendada)
 
-Para evitar los **IDs fijos** y la vacante incompleta de los scripts anteriores, se añadió `backend/scripts/preparar_demo_corte7.py`. Prepara una vacante con **experiencia mínima de 6 meses, formación Técnica, cuatro habilidades y cuatro competencias**, junto con tres postulaciones de datos enteramente ficticios: **Ana (Maestría), Beto (Ingeniería) y Carla (Técnico)**, sus evaluaciones y documentos PDF de prueba. No genera puntajes ni decisiones: se calculan y revisan posteriormente en la interfaz.
+Para evitar los **IDs fijos** y ofrecer una demostración completa independiente de los scripts anteriores, se añadió `backend/scripts/preparar_demo_corte7.py`. Prepara una vacante con **experiencia mínima de 6 meses, formación Técnica, cuatro habilidades y cuatro competencias**, junto con tres postulaciones de datos enteramente ficticios: **Ana (Maestría), Beto (Ingeniería) y Carla (Técnico)**, sus evaluaciones y documentos PDF de prueba. No genera puntajes ni decisiones: se calculan y revisan posteriormente en la interfaz.
 
 - **Seguridad:** el script **solo admite** una conexión real a PostgreSQL cuyo nombre de base sea exactamente `ranking_corte7_demo`. Rechaza `ranking_candidatos` y otras bases. No hace falta crear ni modificar otra base para ejecutar las pruebas unitarias.
 - **Repetibilidad:** busca los registros por campos identificables en vez de asumir IDs, y evita duplicar los datos que ya preparó.
 - **Correos ficticios:** usa cuentas `demo.c7.*@example.com`; no utilices `@example.test`, que puede producir un error de validación 422.
 - **Contraseña:** cuando se aplique en un entorno aislado, solicitará una contraseña de prueba de al menos 12 caracteres mediante entrada oculta. **No la registres en Git**.
+
+
+**Cuentas de demostración del corte 7** (`ranking_corte7_demo`):
+
+| Correo | Rol | Uso |
+| --- | --- | --- |
+| `demo.c7.admin@example.com` | Administrador | Revisar postulaciones y registrar la decisión |
+| `demo.c7.reclutador@example.com` | Reclutador | Evaluaciones y cálculo masivo de ranking |
+| `demo.c7.ana@example.com` | Candidata | Maestría; consultar su propia decisión |
+| `demo.c7.beto@example.com` | Candidato | Ingeniería; perfil intermedio |
+| `demo.c7.carla@example.com` | Candidata | Técnico; perfil básico |
+
+**Contraseña:** las cinco cuentas usan la **misma contraseña de prueba** que se introduce de forma oculta al ejecutar `python -m scripts.preparar_demo_corte7 --aplicar` (mínimo 12 caracteres). No hay contraseña fija en Git y no debe incluirse aquí.
 
 Cuando exista voluntariamente esa base de demostración independiente, primero revisa la conexión **sin escribir datos**:
 
@@ -276,7 +292,7 @@ git diff --check
 
 Un requisito **definido** sin dato suficiente del candidato puede dejar el indicador `None` y la postulación «Pendiente». Los requisitos **no exigidos** por la vacante dejan de bloquear el cálculo y reciben **100 de compatibilidad con la exigencia**, no una certificación real. Los niveles académicos se comparan ignorando acentos, mayúsculas y espacios; «Ingeniería» usa el mismo rango que «Licenciatura» **solo como criterio interno del sistema**, no como equivalencia oficial. Más detalles: [`docs/criterios_requisitos_opcionales_corte7.md`](docs/criterios_requisitos_opcionales_corte7.md).
 
-**Pendiente de comprobación de la nueva versión:** ejecución de `preparar_demo_corte7.py` en su base aislada, clasificación manual de **Ana, Beto y Carla** y prueba visual de los nombres y selectores del administrador/reclutador. Estas actividades **no se marcan como realizadas** por el solo hecho de aprobar las pruebas automatizadas.
+**Demostración observada el 6 de noviembre de 2026 (evidencia `f9b8d2e`):** en una base PostgreSQL nueva `ranking_corte7_demo` se aplicaron las migraciones hasta `a52c67d901fe`, se cargaron tres perfiles ficticios y, desde React, el ranking masivo produjo **3 calculadas, 0 pendientes, 0 errores**. Orden: **Ana 86.95**, **Beto 86.86**, **Carla 71.28**. Se observaron selectores por nombre/título en la interfaz. Esta prueba usó la carpeta de trabajo existente, **no un clon limpio**; falta verificar el registro de una decisión como administrador y su consulta como Ana.
 
 La evidencia con fecha, commit y estado de cada paso está en [`docs/evidencias/bitacora_prueba_integral_corte7.md`](docs/evidencias/bitacora_prueba_integral_corte7.md).
 
@@ -284,11 +300,11 @@ La evidencia con fecha, commit y estado de cada paso está en [`docs/evidencias/
 
 **Condiciones:** usa datos ficticios, verifica la base conectada y no ejecutes scripts que escriban en `ranking_candidatos`. El modelo `ml/models/ranking_modelo.joblib` debe haberse generado con `python .\ml\entrenar_modelo.py` desde la raíz. FastAPI se inicia en `backend/` y React en otra terminal; Vite debería usar `http://localhost:5173` o un origen incluido expresamente en `CORS_ORIGINS`.
 
-1. **Preparación:** anota fecha y commit (`git rev-parse --short HEAD`); confirma conexión real, migraciones aplicadas, existencia del modelo y configuración de CORS. Para la demostración reproducible consulta la [guía de datos ficticios](docs/guia_demo_corte7.md). La preparación de la base aislada es opcional y **no se ha ejecutado todavía en la versión actual**.
+1. **Preparación:** anota fecha y commit (`git rev-parse --short HEAD`); confirma conexión real, migraciones aplicadas, existencia del modelo y configuración de CORS. Para la demostración reproducible consulta la [guía de datos ficticios](docs/guia_demo_corte7.md). La demostración se ejecutó en una base nueva desde la carpeta de desarrollo el 6-nov-2026; queda pendiente repetirla en un clon completamente limpio.
 2. **Administrador:** entra al panel y localiza la vacante por **título**. En «Requisitos de vacantes», selecciona habilidades y competencias por nombre y verifica los niveles exigidos.
 3. **Candidatos:** utiliza los perfiles ficticios **Ana (Maestría), Beto (Ingeniería) y Carla (Técnico)**, con experiencia, formación, habilidades, competencias, postulaciones y PDF de demostración. Si la base no está preparada, no declares este paso como aprobado.
 4. **Reclutador:** abre postulaciones por **nombre del candidato y título de la vacante**; verifica las evaluaciones y la descarga autorizada de PDF. Registra cualquier evaluación que aún falte.
-5. **Ranking:** como reclutador o administrador, elige la vacante de demostración por título y pulsa «Calcular ranking de toda la vacante». Verifica **3 calculadas, 0 pendientes** como objetivo del guion (no resultado observado todavía), o documenta el motivo exacto de cualquier pendiente/error. Contrasta que los tres candidatos aparezcan ordenados por puntaje.
+5. **Ranking:** como reclutador o administrador, elige la vacante de demostración por título y pulsa «Calcular ranking de toda la vacante». Verifica **3 calculadas, 0 pendientes** como objetivo del guion (observado el 6-nov-2026 en la base de demostración), o documenta el motivo exacto de cualquier pendiente/error. Contrasta que los tres candidatos aparezcan ordenados por puntaje.
 6. **Administrador y candidato:** revisa el orden y los cinco indicadores, registra una decisión humana de demostración y comprueba que el candidato correspondiente puede verla. No presentes el ranking como decisión automática ni como modelo validado con datos reales: se entrena con datos sintéticos.
 7. **Evidencia:** captura el resultado visible (sin contraseñas ni datos reales), versión/commit, rol, acción, resultado esperado y resultado observado. Anota cualquier error en [`docs/evidencias/bitacora_prueba_integral_corte7.md`](docs/evidencias/bitacora_prueba_integral_corte7.md).
 
@@ -306,10 +322,10 @@ Se utilizaron herramientas de asistencia con IA como apoyo para la planificació
 
 ## 11. Estado del proyecto
 
-**Estado al 6 de noviembre de 2026 (commit `e5607d3`):** el MVP académico implementa autenticación y permisos por tres roles, perfiles, vacantes, postulaciones, evaluaciones, documentos PDF y ranking individual y masivo. Las correcciones del corte 7 unifican los niveles de estudio (incluidos Maestría, Ingeniería y Técnico), permiten calcular indicadores cuando la vacante no exige requisitos opcionales, configuran CORS desde `.env`, preparan una demostración ficticia reproducible y muestran nombres/títulos en lugar de IDs en las pantallas principales.
+**Estado al 6 de noviembre de 2026 (código hasta `ed3a18d`, evidencia hasta `f9b8d2e`):** el MVP académico implementa autenticación y permisos por tres roles, perfiles, vacantes, postulaciones, evaluaciones, documentos PDF y ranking individual y masivo. Las correcciones del corte 7 unifican los niveles de estudio (incluidos Maestría, Ingeniería y Técnico), permiten calcular indicadores cuando la vacante no exige requisitos opcionales, configuran CORS desde `.env`, preparan una demostración ficticia reproducible y muestran nombres/títulos en lugar de IDs en las pantallas principales.
 
 - **Verificado en código:** 92 pruebas automatizadas aprobadas, ESLint y compilación React correctos el 6 de noviembre de 2026.
 - **Verificado por revisión externa sobre una versión anterior:** el informe del corte 7 reporta instalación limpia y recorrido funcional de los tres roles el 1 de noviembre de 2026; se documentaron incidencias del ranking que motivaron las correcciones recientes.
-- **Pendiente en la versión actual:** ejecutar la nueva demostración aislada de tres candidatos, comprobar manualmente el ranking y las pantallas por nombres, documentar resultados observados y adjuntar capturas no sensibles. Una prueba automatizada no reemplaza esta evidencia.
+- **Demostración verificada el 6-nov-2026:** base nueva `ranking_corte7_demo`, migraciones aplicadas y datos ficticios preparados; en React, clasificación de Ana (86.95), Beto (86.86), Carla (71.28), con **3 calculadas, 0 pendientes y 0 errores**. Evidencia en `f9b8d2e`. **Aún pendiente:** decisión del administrador y consulta de Ana en esta nueva base, así como repetir el proceso desde un clon nuevo sin configuración heredada.
 
 El modelo se entrenó con datos **sintéticos**; el ranking ofrece apoyo a la decisión y requiere siempre revisión humana. Véase [`docs/evidencias/bitacora_prueba_integral_corte7.md`](docs/evidencias/bitacora_prueba_integral_corte7.md).

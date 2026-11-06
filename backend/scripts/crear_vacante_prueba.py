@@ -33,6 +33,8 @@ def crear_vacante_prueba():
             ubicacion="Ciudad de México",
             modalidad="Remota",
             estado="ABIERTA",
+            experiencia_minima_meses=12,
+            nivel_estudios_requerido="Licenciatura",
             fecha_cierre=None,
         )
 

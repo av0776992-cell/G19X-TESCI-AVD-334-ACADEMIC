@@ -39,7 +39,7 @@ No se incluyen contraseñas, claves JWT, correos privados ni cadenas de conexió
 
 **INC-02 — Contraseña del usuario PostgreSQL modificada durante la prueba.** Hubo errores de autenticación hasta actualizar `DB_PASSWORD` en el `.env` local. Se confirmó el acceso posteriormente con `psql` y el script de continuación. No se deben versionar secretos.
 
-**INC-03 — Script ejecutado por ruta que no exponía el paquete `app`.** La ejecución directa produjo `ModuleNotFoundError: No module named 'app'`. Se corrigió la invocación desde `backend/` con `python -m scripts.continuar_demo_corte5`.
+**INC-03 — Script ejecutado por ruta que no exponía el paquete `app`.** La ejecución directa produjo `ModuleNotFoundError: No module named 'app'`. Se corrigió la invocación desde `backend/` con `python -m scripts.continuar_demo_corte5`. **Nota:** `continuar_demo_corte5.py` fue una herramienta auxiliar local, NO incluida en el repositorio académico; no forma parte de la instalación reproducible. Para una demostración reproducible usa `python -m scripts.preparar_demo_corte7` en la base aislada correspondiente.
 
 ## 4. Prueba integral pendiente (guion verificable)
 
