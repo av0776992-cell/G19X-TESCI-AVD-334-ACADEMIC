@@ -38,6 +38,7 @@ export default function MenuLateral({
         </div>
       </div>
 
+      <div className="menu-lateral-caption">ESPACIO DE TRABAJO</div>
       <nav className="menu-lateral-navegacion" aria-label="Navegación principal">
         {opciones.map((opcion) => (
           <button
@@ -56,6 +57,7 @@ export default function MenuLateral({
         ))}
       </nav>
 
+      <div className="menu-lateral-signature"><span className="signature-dot" /> Nebula · DTT</div>
       <button
         type="button"
         className="menu-lateral-salir"

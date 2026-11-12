@@ -22,10 +22,10 @@ export default function VacantesCandidato({
             No hay vacantes abiertas por el momento.
           </p>
         ) : (
-          <div className="lista-postulaciones">
+          <div className="lista-postulaciones vacantes-candidato-lista">
             {vacantes.map((vacante) => (
               <article
-                className="postulacion-item"
+                className="postulacion-item vacantes-candidato-tarjeta"
                 key={vacante.id}
               >
                 <h3>{vacante.titulo}</h3>

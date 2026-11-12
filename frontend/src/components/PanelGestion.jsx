@@ -1,4 +1,6 @@
+import AppearanceControls from '../theme/AppearanceControls'
 import RankingVacante from './RankingVacante'
+import DashboardGestion from './DashboardGestion'
 import MenuLateral from './MenuLateral'
 import PanelAdministrador from './PanelAdministrador'
 import PanelReclutador from './PanelReclutador'
@@ -22,14 +24,7 @@ function PanelGestion({
           seccionActiva={seccionPanel}
           onSeleccionar={(opcion) => {
             setSeccionPanel(opcion)
-            if (opcion === 'inicio') {
-              window.scrollTo({ top: 0, behavior: 'smooth' })
-            } else {
-              document.getElementById(`panel-${opcion}`)?.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start',
-              })
-            }
+            window.scrollTo({ top: 0, behavior: 'smooth' })
           }}
           onCerrarSesion={cerrarSesion}
         />
@@ -41,13 +36,18 @@ function PanelGestion({
               </p>
 
               <h1>
-                Panel de{' '}
-                {esAdministrador
-                  ? 'administrador'
-                  : 'reclutador'}
+                {seccionPanel === 'inicio'
+                  ? `Panel de ${esAdministrador ? 'administrador' : 'reclutador'}`
+                  : seccionPanel === 'vacantes'
+                    ? 'Gestión de vacantes'
+                    : esAdministrador ? 'Postulaciones y ranking IA' : 'Postulaciones y evaluaciones'}
               </h1>
 
-              <p>Bienvenido, {usuario.nombre}</p>
+              <p>{seccionPanel === 'inicio' ? `Bienvenido, ${usuario.nombre}` : 'Gestiona tus procesos de reclutamiento en un solo lugar.'}</p>
+            </div>
+            <div className="panel-header-tools">
+              <span className="panel-role-pill">{esAdministrador ? 'ADMINISTRACIÓN' : 'RECLUTAMIENTO'}</span>
+              <AppearanceControls />
             </div>
           </header>
 
@@ -63,8 +63,23 @@ function PanelGestion({
             </p>
           )}
 
-          {esAdministrador ? (
+          {seccionPanel === 'inicio' ? (
+            <DashboardGestion
+              esAdministrador={esAdministrador}
+              usuario={usuario}
+              postulaciones={postulaciones}
+              token={token}
+              actualizarPostulaciones={actualizarPostulaciones}
+              verRevision={verRevision}
+              verPostulacionReclutador={verPostulacionReclutador}
+              onNavegar={(opcion) => {
+                setSeccionPanel(opcion)
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              }}
+            />
+          ) : esAdministrador ? (
             <PanelAdministrador
+              seccionPanel={seccionPanel}
               datosComunes={datosComunes}
               datosVacantes={datosVacantes}
               datosRevision={datosRevision}
@@ -75,7 +90,9 @@ function PanelGestion({
               datosReclutador={datosReclutador}
             />
           )}
-          <RankingVacante token={token} postulaciones={postulaciones} />
+          {seccionPanel === 'postulaciones' && (
+            <RankingVacante token={token} postulaciones={postulaciones} />
+          )}
         </section>
       </main>
   )

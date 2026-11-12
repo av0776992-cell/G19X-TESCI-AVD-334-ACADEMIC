@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import PanelCandidato from './components/PanelCandidato'
 import PanelGestion from './components/PanelGestion'
+import AppearanceControls from './theme/AppearanceControls'
 import { API_URL, solicitarAPI } from './api'
 import './App.css'
 
@@ -321,6 +322,7 @@ function App() {
       })
 
       setToken(datos.access_token)
+      setSeccionPanel('inicio')
       setPassword('')
 
       if (['ADMINISTRADOR', 'RECLUTADOR'].includes(datos.rol)) {
@@ -605,6 +607,7 @@ function App() {
   }
 
   function cerrarSesion() {
+    setSeccionPanel('inicio')
     setUsuario(null)
     setToken('')
     setCorreo('')
@@ -726,101 +729,58 @@ function App() {
     )
   }
 
-  // INICIO DE SESIÓN
-
+  // INICIO DE SESIÓN — rediseño Nebula, sin cambios en la autenticación.
   return (
-    <main className="pagina">
-      <section className="tarjeta">
-        <div className="marca">DTT</div>
-
-        <p className="etiqueta">
-          Develop Talent & Technology
-        </p>
-
-        <h1>Bienvenido</h1>
-
-        <p className="descripcion">
-          Sistema de Ranking Predictivo de Candidatos
-        </p>
-
-        <form onSubmit={iniciarSesion}>
-          <div className="campo">
-            <label htmlFor="correo">
-              Correo electrónico
-            </label>
-
-            <input
-              id="correo"
-              type="email"
-              placeholder="ejemplo@correo.com"
-              autoComplete="username"
-              value={correo}
-              onChange={(evento) =>
-                setCorreo(evento.target.value)
-              }
-              required
-            />
+    <main className="pagina pagina-login">
+      <div className="login-layout">
+        <section className="login-hero" aria-label="Presentación del sistema">
+          <div className="login-hero-brand"><span className="login-hero-mark">✦</span> DTT / RANKING IA</div>
+          <div className="login-hero-body">
+            <p className="login-kicker"><span className="login-live-dot" /> SISTEMA DE TALENTO INTELIGENTE</p>
+            <h2>Conecta talento.<br /><span>Descubre potencial.</span></h2>
+            <p className="login-hero-description">Gestiona candidatos, evalúa perfiles y consulta rankings predictivos desde un espacio diseñado para tomar mejores decisiones.</p>
+            <div className="login-metrics" aria-label="Características principales">
+              <div><strong>03</strong><span>Roles conectados</span></div>
+              <div><strong>05</strong><span>Indicadores de IA</span></div>
+              <div><strong>IA</strong><span>Análisis explicable</span></div>
+            </div>
           </div>
-
-          <div className="campo">
-            <label htmlFor="password">
-              Contraseña
-            </label>
-
-            <input
-              id="password"
-              type={
-                mostrarPassword
-                  ? 'text'
-                  : 'password'
-              }
-              placeholder="Ingresa tu contraseña"
-              autoComplete="current-password"
-              value={password}
-              onChange={(evento) =>
-                setPassword(evento.target.value)
-              }
-              required
-            />
-
-            <label className="mostrar-password">
-              <input
-                type="checkbox"
-                checked={mostrarPassword}
-                onChange={(evento) =>
-                  setMostrarPassword(
-                    evento.target.checked
-                  )
-                }
-              />
-              Mostrar contraseña
-            </label>
+          <div className="login-hero-bottom">DEVELOP TALENT & TECHNOLOGY <span>•</span> NEBULA UI</div>
+        </section>
+        <section className="tarjeta login-card">
+          <div className="login-card-toolbar"><AppearanceControls /></div>
+          <div className="login-card-content">
+            <div className="marca">DTT</div>
+            <p className="etiqueta">Develop Talent & Technology</p>
+            <h1>Bienvenido</h1>
+            <p className="descripcion">Accede a tu espacio de trabajo</p>
+            <form onSubmit={iniciarSesion}>
+              <div className="campo">
+                <label htmlFor="correo">Correo electrónico</label>
+                <input id="correo" type="email" placeholder="ejemplo@correo.com"
+                  autoComplete="username" value={correo}
+                  onChange={(evento) => setCorreo(evento.target.value)} required />
+              </div>
+              <div className="campo">
+                <label htmlFor="password">Contraseña</label>
+                <input id="password" type={mostrarPassword ? 'text' : 'password'}
+                  placeholder="Ingresa tu contraseña" autoComplete="current-password"
+                  value={password} onChange={(evento) => setPassword(evento.target.value)} required />
+                <label className="mostrar-password">
+                  <input type="checkbox" checked={mostrarPassword}
+                    onChange={(evento) => setMostrarPassword(evento.target.checked)} />
+                  Mostrar contraseña
+                </label>
+              </div>
+              {error && <p className="mensaje-error" role="alert">{error}</p>}
+              <button className="boton" type="submit" disabled={cargando}>
+                {cargando ? 'Iniciando sesión...' : 'Iniciar sesión'}
+              </button>
+            </form>
+            <p className="pie">Plataforma de gestión y evaluación de candidatos</p>
           </div>
-
-          {error && (
-            <p
-              className="mensaje-error"
-              role="alert"
-            >
-              {error}
-            </p>
-          )}
-
-          <button
-            className="boton"
-            type="submit"
-            disabled={cargando}
-          >
-            {cargando
-              ? 'Iniciando sesión...'
-              : 'Iniciar sesión'}
-          </button>
-        </form>
-
-        <p className="pie">
-          Plataforma de gestión y evaluación de candidatos
-        </p>
-      </section>
+        </section>
+      </div>
     </main>
   )
 }

@@ -1,3 +1,4 @@
+import AppearanceControls from '../theme/AppearanceControls'
 import { useCallback, useEffect, useState } from 'react'
 import MenuLateral from './MenuLateral'
 import PerfilCandidato from './PerfilCandidato'
@@ -211,8 +212,12 @@ export default function PanelCandidato({
             <p className="etiqueta">
               Develop Talent & Technology
             </p>
-            <h1>Panel de candidatos</h1>
+            <h1>Panel del candidato</h1>
             <p>Bienvenido, {usuario.nombre}</p>
+          </div>
+          <div className="panel-header-tools">
+            <span className="panel-role-pill">MI ESPACIO</span>
+            <AppearanceControls />
           </div>
         </header>
 
