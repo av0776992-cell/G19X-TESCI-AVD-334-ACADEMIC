@@ -6,7 +6,7 @@
 **Rama publicada:** `academico/main`
 **Tipo de evidencia:** resultados enviados por la desarrolladora y retroalimentación del evaluador; los dos orígenes se identifican por separado.
 
-> **Actualización del 6-nov-2026, `f9b8d2e`:** sí se ejecutó la demostración de tres candidatos sobre una base PostgreSQL nueva, pero **desde el directorio de desarrollo existente**, no en un clon nuevo. La decisión de administrador y su consulta por la candidata siguen por comprobar. No se incluyen contraseñas ni datos personales reales.
+> **Actualización del 6-nov-2026, `f9b8d2e`:** sí se ejecutó la demostración de tres candidatos sobre una base PostgreSQL nueva, pero **desde el directorio de desarrollo existente**, no en un clon nuevo. Posteriormente se comprobaron la decisión de la administradora y su consulta desde la cuenta de Ana (evidencia `b33db1f`); solo queda pendiente repetir la instalación de la versión final desde un clon limpio. No se incluyen contraseñas ni datos personales reales.
 
 ## 1. Referencias y alcance
 
@@ -28,7 +28,7 @@
 
 Los conteos de pruebas son **sucesivos**, no acumulativos: el total más reciente es 92, no la suma de las filas.
 
-## 3. Resultados de la demostración y verificaciones pendientes
+## 3. Resultados de la demostración y comprobaciones pendientes
 
 | Paso | Rol | Acción | Resultado esperado | Resultado observado |
 | --- | --- | --- | --- | --- |
@@ -37,15 +37,15 @@ Los conteos de pruebas son **sucesivos**, no acumulativos: el total más recient
 | 3 | Administrador | Seleccionar vacante y requisitos por título/nombre | Selectores correctos y datos correspondientes | Se observó en la interfaz la selección por título y por nombre de requisitos (sobre la base habitual). |
 | 4 | Reclutador | Consultar postulaciones con nombres, evaluaciones y PDF | Nombres, títulos y descarga correcta | Se observaron nombres y títulos en las listas; descarga PDF y flujo completo aún sin repetir en la base nueva. |
 | 5 | Reclutador/administrador | Calcular ranking masivo de Ana, Beto y Carla | **3 calculadas, 0 pendientes, 0 errores** | **3 calculadas, 0 pendientes, 0 errores**. Ranking observado en React: Ana 86.95, Beto 86.86, Carla 71.28; evidencia `f9b8d2e`. |
-| 6 | Administrador | Comprobar tabla ordenada y registrar una decisión | Tres puntuaciones y decisión humana visible | Clasificación observada desde rol reclutador; **decisión del administrador todavía no comprobada en la base nueva**. |
-| 7 | Candidato | Consultar decisión con permisos de candidato | Resultado propio visible; datos ajenos protegidos | **Pendiente:** iniciar sesión como Ana y comprobar su decisión después de registrarla como administrador. |
-| 8 | Documentación | Registrar capturas, commit definitivo y resultados reales | Evidencia trazable sin secretos | Resultados incorporados al commit `f9b8d2e`; la captura del ranking se compartió en la sesión y debe conservarse como evidencia visual. |
+| 6 | Administrador | Comprobar tabla ordenada y registrar una decisión | Tres puntuaciones y decisión humana visible | Se comprobó la decisión final **Aceptado** para Ana, registrada por la administradora en `ranking_corte7_demo` el 6-nov-2026. Evidencia `b33db1f`. |
+| 7 | Candidato | Consultar decisión con permisos de candidato | Resultado propio visible; datos ajenos protegidos | Ana inició sesión en su cuenta ficticia y consultó «Mis postulaciones»: estado **Aceptado**, decisión final **Aceptado**, fecha 6-nov-2026. Evidencia visual y commit `b33db1f`. **No se repitió en un clon nuevo.** |
+| 8 | Documentación | Registrar capturas, commit definitivo y resultados reales | Evidencia trazable sin secretos | Ranking incorporado al commit `f9b8d2e`; decisión final documentada en `b33db1f`. Las capturas están organizadas en `docs/evidencias/capturas/`, con índice `docs/evidencias/indice_capturas_2026-11-06.md`. |
 
 **Precaución:** el script `preparar_demo_corte7.py` rechaza cualquier base cuyo nombre real no sea `ranking_corte7_demo`. No se debe cambiar la configuración de la base de desarrollo `ranking_candidatos` para ejecutar las pruebas automatizadas.
 
 ## 4. Conclusión provisional
 
-El corte 7 tiene **cinco correcciones publicadas** y **92 pruebas aprobadas**, además de compilación React y lint correctos. El informe externo confirmó la posibilidad de instalar y recorrer una versión anterior, y sus fallos de niveles y requisitos motivaron las correcciones actuales. El 6-nov-2026 se ejecutó la demostración en `ranking_corte7_demo` (base nueva, carpeta de desarrollo existente), y se observaron **3 calculadas, 0 pendientes, 0 errores**, con Ana, Beto y Carla ordenados. Evidencia `f9b8d2e`. Queda probar decisión de administrador y consulta de Ana, y repetir el proceso desde un clon limpio.
+El corte 7 tiene **cinco correcciones publicadas** y **92 pruebas aprobadas**, además de compilación React y lint correctos. El informe externo confirmó la posibilidad de instalar y recorrer una versión anterior, y sus fallos de niveles y requisitos motivaron las correcciones actuales. El 6-nov-2026 se ejecutó la demostración en `ranking_corte7_demo` (base nueva, carpeta de desarrollo existente), y se observaron **3 calculadas, 0 pendientes, 0 errores**, con Ana, Beto y Carla ordenados. Evidencia `f9b8d2e`. También se comprobó la decisión final del administrador y su visibilidad para Ana, evidencia `b33db1f`. **Queda pendiente como principal comprobación repetir la instalación integral desde un clon limpio de la versión final.**
 
 ## Validacion funcional - 6 de noviembre de 2026
 
@@ -89,3 +89,7 @@ la decision registrada por el administrador.
 
 Nota: prueba realizada con base nueva de demostracion,
 sin repetir todo el proceso en un clon independiente.
+
+## 5. Capturas adjuntas y alcance
+
+Las capturas originales del 6-nov-2026 se organizan en [el índice de evidencias](indice_capturas_2026-11-06.md). Proceden de la ejecución local de la demostración en `ranking_corte7_demo` y de la comprobación visual de selectores. **No representan una nueva instalación limpia realizada el 12-nov-2026**.

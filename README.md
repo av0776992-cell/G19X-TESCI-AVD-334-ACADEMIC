@@ -256,7 +256,9 @@ Test-Path .\ml\models\ranking_modelo.joblib
 
 Si la ruta o el nombre del archivo no coinciden, comprueba lo que escribe `ml/entrenar_modelo.py` y lo que espera `backend/app/services/ranking_ml_service.py` antes de usar el endpoint de ranking.
 
-**Limitación del modelo:** el entrenamiento inicial emplea datos sintéticos. Sus predicciones son demostrativas y no deben presentarse como una validación de eficacia con datos reales de contratación. Los resultados requieren supervisión y evaluación humana.
+**Cómo se obtiene el puntaje:** el prototipo utiliza cinco indicadores: experiencia, habilidades, formación, competencias y evaluación del reclutador. Para generar las etiquetas de entrenamiento sintéticas, `ml/entrenar_modelo.py` utiliza ponderaciones de **25 %, 30 %, 15 %, 15 % y 15 %**, respectivamente. El Random Forest aprende una aproximación a esa regla; **la predicción mostrada no es necesariamente la suma ponderada exacta**. La semilla fija hace reproducible el entrenamiento con las versiones de las dependencias especificadas.
+
+**Limitación del modelo:** el entrenamiento inicial emplea datos sintéticos etiquetados mediante reglas, no resultados laborales observados ni datos reales de contratación. Sus predicciones son demostrativas y no prueban que el sistema pueda predecir el desempeño futuro, ni que esté libre de sesgos. Para un uso real harían falta validación con datos apropiados, revisión de posibles sesgos, protección de datos personales y supervisión humana. **La decisión final la registra una persona autorizada, no el algoritmo.**
 
 ## 8. Pruebas y verificación
 
@@ -292,9 +294,9 @@ git diff --check
 
 Un requisito **definido** sin dato suficiente del candidato puede dejar el indicador `None` y la postulación «Pendiente». Los requisitos **no exigidos** por la vacante dejan de bloquear el cálculo y reciben **100 de compatibilidad con la exigencia**, no una certificación real. Los niveles académicos se comparan ignorando acentos, mayúsculas y espacios; «Ingeniería» usa el mismo rango que «Licenciatura» **solo como criterio interno del sistema**, no como equivalencia oficial. Más detalles: [`docs/criterios_requisitos_opcionales_corte7.md`](docs/criterios_requisitos_opcionales_corte7.md).
 
-**Demostración observada el 6 de noviembre de 2026 (evidencia `f9b8d2e`):** en una base PostgreSQL nueva `ranking_corte7_demo` se aplicaron las migraciones hasta `a52c67d901fe`, se cargaron tres perfiles ficticios y, desde React, el ranking masivo produjo **3 calculadas, 0 pendientes, 0 errores**. Orden: **Ana 86.95**, **Beto 86.86**, **Carla 71.28**. Se observaron selectores por nombre/título en la interfaz. Esta prueba usó la carpeta de trabajo existente, **no un clon limpio**; falta verificar el registro de una decisión como administrador y su consulta como Ana.
+**Demostración observada el 6 de noviembre de 2026 (evidencia `f9b8d2e`):** en una base PostgreSQL nueva `ranking_corte7_demo` se aplicaron las migraciones hasta `a52c67d901fe`, se cargaron tres perfiles ficticios y, desde React, el ranking masivo produjo **3 calculadas, 0 pendientes, 0 errores**. Orden: **Ana 86.95**, **Beto 86.86**, **Carla 71.28**. Se observaron selectores por nombre/título en la interfaz. Esta prueba usó la carpeta de trabajo existente, **no un clon limpio**. Posteriormente, en el commit de evidencia `b33db1f`, se documentó que la administradora registró la decisión **Aceptado** para Ana y que ella pudo consultarla en «Mis postulaciones». **Sigue pendiente repetir la instalación completa de la versión final desde un clon limpio.**
 
-La evidencia con fecha, commit y estado de cada paso está en [`docs/evidencias/bitacora_prueba_integral_corte7.md`](docs/evidencias/bitacora_prueba_integral_corte7.md).
+La evidencia con fecha, commit y estado de cada paso está en [`docs/evidencias/bitacora_prueba_integral_corte7.md`](docs/evidencias/bitacora_prueba_integral_corte7.md). Las [capturas de demostración](docs/evidencias/indice_capturas_2026-11-06.md) incluyen la clasificación y la decisión visible para Ana; no sustituyen la prueba de instalación limpia.
 
 ## 8.1. Guion de demostración para la revisión
 
@@ -322,10 +324,10 @@ Se utilizaron herramientas de asistencia con IA como apoyo para la planificació
 
 ## 11. Estado del proyecto
 
-**Estado al 6 de noviembre de 2026 (código hasta `ed3a18d`, evidencia hasta `f9b8d2e`):** el MVP académico implementa autenticación y permisos por tres roles, perfiles, vacantes, postulaciones, evaluaciones, documentos PDF y ranking individual y masivo. Las correcciones del corte 7 unifican los niveles de estudio (incluidos Maestría, Ingeniería y Técnico), permiten calcular indicadores cuando la vacante no exige requisitos opcionales, configuran CORS desde `.env`, preparan una demostración ficticia reproducible y muestran nombres/títulos en lugar de IDs en las pantallas principales.
+**Estado al 6 de noviembre de 2026 (ajustes de código y documentación hasta `b151d6f`, evidencia hasta `b33db1f`):** el MVP académico implementa autenticación y permisos por tres roles, perfiles, vacantes, postulaciones, evaluaciones, documentos PDF y ranking individual y masivo. Las correcciones del corte 7 unifican los niveles de estudio (incluidos Maestría, Ingeniería y Técnico), permiten calcular indicadores cuando la vacante no exige requisitos opcionales, configuran CORS desde `.env`, preparan una demostración ficticia reproducible y muestran nombres/títulos en lugar de IDs en las pantallas principales.
 
 - **Verificado en código:** 92 pruebas automatizadas aprobadas, ESLint y compilación React correctos el 6 de noviembre de 2026.
 - **Verificado por revisión externa sobre una versión anterior:** el informe del corte 7 reporta instalación limpia y recorrido funcional de los tres roles el 1 de noviembre de 2026; se documentaron incidencias del ranking que motivaron las correcciones recientes.
-- **Demostración verificada el 6-nov-2026:** base nueva `ranking_corte7_demo`, migraciones aplicadas y datos ficticios preparados; en React, clasificación de Ana (86.95), Beto (86.86), Carla (71.28), con **3 calculadas, 0 pendientes y 0 errores**. Evidencia en `f9b8d2e`. **Aún pendiente:** decisión del administrador y consulta de Ana en esta nueva base, así como repetir el proceso desde un clon nuevo sin configuración heredada.
+- **Demostración verificada el 6-nov-2026:** base nueva `ranking_corte7_demo`, migraciones aplicadas y datos ficticios preparados; en React, clasificación de Ana (86.95), Beto (86.86), Carla (71.28), con **3 calculadas, 0 pendientes y 0 errores**. Evidencia en `f9b8d2e`. Posteriormente se registró **Aceptado** para Ana y se comprobó desde su cuenta de candidata que el estado y la decisión final aparecían correctamente; evidencia en `b33db1f`. **Aún pendiente:** repetir la instalación integral de esta versión final desde un clon nuevo, sin configuración heredada.
 
 El modelo se entrenó con datos **sintéticos**; el ranking ofrece apoyo a la decisión y requiere siempre revisión humana. Véase [`docs/evidencias/bitacora_prueba_integral_corte7.md`](docs/evidencias/bitacora_prueba_integral_corte7.md).
