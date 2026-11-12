@@ -93,3 +93,31 @@ sin repetir todo el proceso en un clon independiente.
 ## 5. Capturas adjuntas y alcance
 
 Las capturas originales del 6-nov-2026 se organizan en [el índice de evidencias](indice_capturas_2026-11-06.md). Proceden de la ejecución local de la demostración en `ranking_corte7_demo` y de la comprobación visual de selectores. **No representan una nueva instalación limpia realizada el 12-nov-2026**.
+
+## Validacion de instalacion limpia - 12 de noviembre de 2026
+
+Commit probado: a100db5
+Carpeta independiente: Sistema-Ranking-Candidatos-Validacion
+Base nueva: ranking_validacion_final
+
+Resultados:
+- Dependencias Python: instalacion correcta.
+- Dependencias React: npm ci correcto.
+- Pytest: 92 pruebas aprobadas.
+- ESLint: sin errores.
+- Vite build: correcto.
+- Alembic: a52c67d901fe (head).
+- Alembic check: sin nuevas migraciones.
+- Catalogos inicializados correctamente.
+- Random Forest: MAE 1.7535, R2 0.9724.
+- FastAPI /docs: HTTP 200.
+- React: pantalla de inicio visible en localhost:5173.
+
+Resultado: INSTALACION Y ARRANQUE APROBADOS.
+
+Observacion:
+El recorrido integral de tres roles se comprobo previamente
+en ranking_corte7_demo, no en esta nueva base.
+
+npm audit reporto cuatro alertas moderadas en dependencias
+de desarrollo; no se aplicaron cambios automaticos.
